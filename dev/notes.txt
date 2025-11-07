@@ -6,6 +6,7 @@
 - 0.6.0.9000 - 06.11.2025 > "PRoMAn" 
 	> added in the reference management functions and further tested blitzschreiben
 	> now can create a bibliography, update it with an annotation function.
+	> released as beta on GitHub
 
 
  - 0.5.0.9016 - 20.10.25
@@ -52,6 +53,8 @@
 
 - blitzschreiben_status() shows all projects, so this is going to have to be the thing that 	generates the tracker and does everything else to keep track of the projects overall.
 
+
+- update vignette and quick reference, do all the other stuff so it's all pretty-ish for others I 	guess
 
 -------------------------------------------------------------------------------------------------
 					     BUGS
