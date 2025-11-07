@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Blitzschreiben: Rapid Research Workflow in PRoMan</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Blitzschreiben: Rapid Research Workflow in
+PRoMan</h1>
+
+
+
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>The Blitzschreiben system is a structured workflow for rapidly
+developing research projects from initial idea to draft manuscript. It
+emphasizes:</p>
+<pre><code>Speed: Time-boxed activities to prevent overthinking
+Structure: Clear stages with defined outputs
+Iteration: Multiple projects in parallel at different stages
+Quality: Built-in review points and documentation</code></pre>
+</div>
+<div id="the-three-stages" class="section level2">
+<h2>The Three Stages</h2>
+<div id="stage-i-idea-triage-blitzschriften" class="section level3">
+<h3>Stage I: Idea Triage (Blitzschriften)</h3>
+<pre><code>Time: 12-15 minutes per idea
+Goal: Quickly assess if an idea is ready to pursue
+Output: Structured planning document with parseable variables</code></pre>
+</div>
+<div id="stage-ii-analysis-development-analyseblitz" class="section level3">
+<h3>Stage II: Analysis Development (Analyseblitz)</h3>
+<pre><code>Time: 2-4 hours total
+Goal: Develop and test analysis with mock data before real data
+Output: Documented analysis pipeline in Quarto</code></pre>
+</div>
+<div id="stage-iii-draft-writing-draftschreiben" class="section level3">
+<h3>Stage III: Draft Writing (Draftschreiben)</h3>
+<pre><code>Time: Focused writing sessions
+Goal: Create 80% complete draft for sharing
+Output: Structured manuscript draft</code></pre>
+</div>
+</div>
+<div id="complete-workflow-example" class="section level2">
+<h2>Complete Workflow Example</h2>
+<p>Let’s walk through a complete project from idea to draft. Step 1:
+Initialize a Blitzschreiben Project</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Start a new project idea</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">init_blitz_project</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">project_code =</span> <span class="st">&quot;P3.1&quot;</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="at">idea_title =</span> <span class="st">&quot;Treatment Effects on Patient Outcomes&quot;</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>)</span></code></pre></div>
+<p>This creates:</p>
+<pre><code>A Stage I template in your personal_notes folder
+An entry in the Blitzschreiben tracker
+Project metadata in .proman</code></pre>
+<p>Step 2: Complete Stage I Triage</p>
+<p>Start your timer and fill out the Stage I template:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Start the 15-minute timer</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">start_triage_timer</span>(<span class="at">minutes =</span> <span class="dv">15</span>, <span class="at">project_code =</span> <span class="st">&quot;P3.1&quot;</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co"># Open the template (it&#39;s in personal_notes/stage1_triage_P3.1.md)</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co"># Fill it out quickly!</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co"># Check remaining time</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="fu">check_triage_time</span>()</span></code></pre></div>
+<p>The Stage I template includes a variables table that is crucial for
+automation:</p>
+<table>
+<colgroup>
+<col width="12%" />
+<col width="20%" />
+<col width="12%" />
+<col width="28%" />
+<col width="26%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Role</th>
+<th>Variable</th>
+<th>Type</th>
+<th>Values/Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Exposure</td>
+<td>treatment</td>
+<td>factor</td>
+<td>control, treatment_a, treatment_b</td>
+<td>Treatment group</td>
+</tr>
+<tr class="even">
+<td>Outcome</td>
+<td>pain_score</td>
+<td>numeric</td>
+<td>0-10</td>
+<td>Pain rating</td>
+</tr>
+<tr class="odd">
+<td>Outcome</td>
+<td>mobility</td>
+<td>numeric</td>
+<td>positive</td>
+<td>Mobility score</td>
+</tr>
+<tr class="even">
+<td>Covariate</td>
+<td>age</td>
+<td>numeric</td>
+<td>18-85</td>
+<td>Age in years</td>
+</tr>
+<tr class="odd">
+<td>Covariate</td>
+<td>gender</td>
+<td>factor</td>
+<td>male, female, other</td>
+<td>Gender</td>
+</tr>
+<tr class="even">
+<td>Covariate</td>
+<td>baseline_pain</td>
+<td>numeric</td>
+<td>0-10</td>
+<td>Baseline pain</td>
+</tr>
+</tbody>
+</table>
+<p>Complete your triage decision:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># End timer and record decision</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">end_triage_timer</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">decision =</span> <span class="st">&quot;ready&quot;</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">next_steps =</span> <span class="st">&quot;Move to Stage II analysis&quot;</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>)</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co"># Advance to next stage</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="fu">advance_to_next_stage</span>(<span class="st">&quot;P3.1&quot;</span>, <span class="at">decision =</span> <span class="st">&quot;ready&quot;</span>)</span></code></pre></div>
+<p>Step 3: Verify Stage I Parsing</p>
+<p>Before moving to Stage II, check that your variables were parsed
+correctly:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># View parsed variables</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">show_stage1_variables</span>(<span class="st">&quot;P3.1&quot;</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co"># Test the simulation</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>test_data <span class="ot">&lt;-</span> <span class="fu">test_stage1_simulation</span>(<span class="st">&quot;P3.1&quot;</span>, <span class="at">n =</span> <span class="dv">10</span>)</span></code></pre></div>
+<p>Step 4: Create Stage II Analyseblitz</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Create Stage II template with auto-populated simulation</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">create_blitz_template</span>(</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="at">stage =</span> <span class="dv">2</span>, </span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="at">project_code =</span> <span class="st">&quot;P3.1&quot;</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="at">analysis_type =</span> <span class="st">&quot;regression&quot;</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>)</span></code></pre></div>
+<p>The Stage II template now includes:</p>
+<pre><code>Pre-filled simulation code based on your Stage I variables
+Sections for mock and real analysis
+Quarto format for documentation</code></pre>
+<p>Example of auto-generated simulation code:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co"># Data simulation based on Stage I specifications</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">500</span>  <span class="co"># Sample size from Stage I</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co"># Generate variables from Stage I table</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>sim_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>  <span class="at">treatment =</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">&quot;control&quot;</span>, <span class="st">&quot;treatment_a&quot;</span>, <span class="st">&quot;treatment_b&quot;</span>), n, <span class="at">replace =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a>  <span class="at">pain_score =</span> <span class="fu">runif</span>(n, <span class="at">min =</span> <span class="dv">0</span>, <span class="at">max =</span> <span class="dv">10</span>),</span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a>  <span class="at">mobility =</span> <span class="fu">rgamma</span>(n, <span class="at">shape =</span> <span class="dv">2</span>, <span class="at">rate =</span> <span class="dv">1</span>),  <span class="co"># Positive values</span></span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a>  <span class="at">age =</span> <span class="fu">runif</span>(n, <span class="at">min =</span> <span class="dv">18</span>, <span class="at">max =</span> <span class="dv">85</span>),</span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a>  <span class="at">gender =</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">&quot;male&quot;</span>, <span class="st">&quot;female&quot;</span>, <span class="st">&quot;other&quot;</span>), n, <span class="at">replace =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a>  <span class="at">baseline_pain =</span> <span class="fu">runif</span>(n, <span class="at">min =</span> <span class="dv">0</span>, <span class="at">max =</span> <span class="dv">10</span>)</span>
+<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a>)</span></code></pre></div>
+<p>Step 5: Complete Stage II Analysis</p>
+<p>Follow the Stage II workflow:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># 1. PREP: Find references (15-30 min)</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co"># 2. MOCK: Run analysis on simulated data</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co"># 3. REAL: Apply to actual data</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co"># 4. SNIFF </span><span class="al">TEST</span><span class="co">: Check if results make sense</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co"># Track your progress</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="fu">stage2_progress_check</span>(<span class="st">&quot;P3.1&quot;</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co"># When complete, advance to Stage III</span></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="fu">advance_to_next_stage</span>(<span class="st">&quot;P3.1&quot;</span>)</span></code></pre></div>
+<p>Step 6: Create Stage III Draft</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co"># Create draft template</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="fu">create_blitz_template</span>(</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>  <span class="at">stage =</span> <span class="dv">3</span>,</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>  <span class="at">project_code =</span> <span class="st">&quot;P3.1&quot;</span>, </span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>  <span class="at">paper_type =</span> <span class="st">&quot;journal&quot;</span>,</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>  <span class="at">target_journal =</span> <span class="st">&quot;Journal of Clinical Research&quot;</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>)</span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co"># The template includes:</span></span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co"># - Imported research question from Stage I</span></span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="co"># - Structured sections with word count targets</span></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="co"># - Placeholders for Stage II results</span></span></code></pre></div>
+<p>Pipeline Management View Your Pipeline Status</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co"># See all active projects across stages</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="fu">blitzschreiben_status</span>()</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co"># Get today&#39;s recommended tasks</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="fu">todays_blitz_tasks</span>()</span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co"># Weekly report</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="fu">weekly_blitz_report</span>()</span></code></pre></div>
+<p>Recommended Weekly Schedule</p>
+<pre><code>Monday: Stage I triage + Stage II prep
+Tuesday: Stage II mock analysis
+Wednesday: Stage II real analysis
+Thursday: Stage III draft writing
+Friday: QA review and reading</code></pre>
+<p>Tips for Success 1. Don’t Overthink Stage I</p>
+<p>The 15-minute limit forces quick decisions. It’s better to have
+multiple ideas in the pipeline than one perfect idea. 2. Fill Out the
+Variables Table Completely</p>
+<p>The more detail in your Stage I variables table, the better your
+Stage II simulation:</p>
+<pre><code>Use comma-separated lists for factor levels
+Use &quot;min-max&quot; format for numeric ranges (e.g., &quot;18-65&quot;)
+Use &quot;positive&quot; for positive-only numeric variables</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li>Mock Analysis is Not Wasted Time</li>
+</ol>
+<p>Testing your analysis on simulated data:</p>
+<pre><code>Catches coding errors early
+Documents your analytical decisions
+Creates reusable code for real data</code></pre>
+<ol start="4" style="list-style-type: decimal">
+<li>Maintain Pipeline Balance</li>
+</ol>
+<p>Aim for:</p>
+<pre><code>4-5 projects in Stage I
+2-3 projects in Stage II
+1-2 projects in Stage III</code></pre>
+<ol start="5" style="list-style-type: decimal">
+<li>Use the Helper Functions</li>
+</ol>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="co"># Check parsed variables</span></span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="fu">show_stage1_variables</span>(<span class="st">&quot;P3.1&quot;</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="co"># Test simulation before Stage II</span></span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="fu">test_stage1_simulation</span>(<span class="st">&quot;P3.1&quot;</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a><span class="co"># Track progress</span></span>
+<span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a><span class="fu">stage2_progress_check</span>(<span class="st">&quot;P3.1&quot;</span>)</span>
+<span id="cb20-9"><a href="#cb20-9" tabindex="-1"></a><span class="fu">stage3_progress_check</span>(<span class="st">&quot;P3.1&quot;</span>)</span>
+<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a></span>
+<span id="cb20-11"><a href="#cb20-11" tabindex="-1"></a><span class="co"># Manage your pipeline</span></span>
+<span id="cb20-12"><a href="#cb20-12" tabindex="-1"></a><span class="fu">list_all_projects</span>()</span>
+<span id="cb20-13"><a href="#cb20-13" tabindex="-1"></a><span class="fu">update_tracker_entry</span>(<span class="st">&quot;P3.1&quot;</span>, <span class="at">action =</span> <span class="st">&quot;pause&quot;</span>)  <span class="co"># If needed</span></span></code></pre></div>
+<p>Advanced Features Master Scripts for Complex Analyses</p>
+<p>For projects with multiple analysis components:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="co"># Create a master script that orchestrates components</span></span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="fu">create_master_script</span>(</span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>  <span class="at">project_code =</span> <span class="st">&quot;P3.1&quot;</span>,</span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a>  <span class="at">analysis_components =</span> <span class="fu">c</span>(<span class="st">&quot;data_prep&quot;</span>, <span class="st">&quot;descriptive&quot;</span>, <span class="st">&quot;main_analysis&quot;</span>, <span class="st">&quot;sensitivity&quot;</span>),</span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>  <span class="at">file_sets =</span> <span class="fu">list</span>(</span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a>    <span class="at">baseline =</span> <span class="fu">c</span>(<span class="st">&quot;baseline_2023.csv&quot;</span>, <span class="st">&quot;baseline_2024.csv&quot;</span>),</span>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a>    <span class="at">followup =</span> <span class="fu">c</span>(<span class="st">&quot;followup_6mo.csv&quot;</span>, <span class="st">&quot;followup_12mo.csv&quot;</span>)</span>
+<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a>  )</span>
+<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a>)</span>
+<span id="cb21-10"><a href="#cb21-10" tabindex="-1"></a></span>
+<span id="cb21-11"><a href="#cb21-11" tabindex="-1"></a><span class="co"># Run the complete analysis pipeline</span></span>
+<span id="cb21-12"><a href="#cb21-12" tabindex="-1"></a><span class="fu">run_master_analysis</span>(<span class="st">&quot;P3.1&quot;</span>)</span></code></pre></div>
+<p>Integration with PRoMan Features</p>
+<p>The Blitzschreiben system integrates with other PRoMan features:</p>
+<p>```r# Use PRoMan’s file management in Stage II data_files &lt;-
+select_files_by_keyword(“treatment”) data &lt;-
+load_files_by_keyword(“treatment”)</p>
+</div>
+<div id="save-figures-with-metadata" class="section level1">
+<h1>Save figures with metadata</h1>
+<p>p &lt;- ggplot(sim_data, aes(x = treatment, y = pain_score)) +
+geom_boxplot() save_figure(p, “treatment_effects”, caption = “Pain
+scores by treatment group”)</p>
+</div>
+<div id="track-sources-for-literature-review" class="section level1">
+<h1>Track sources for literature review</h1>
+<p>track_sources( search_strategy = “Pearl growing from Smith et al
+2023”, new_sources = 5, project_code = “P3.1” )</p>
+<pre><code>
+##Troubleshooting
+Variables Not Parsing from Stage I
+
+Check that your variables table:
+
+    Uses the exact header format with pipe separators
+    Has content in the Variable column (not empty)
+    Uses consistent formatting
+
+Stage II Simulation Not Working
+
+    Run show_stage1_variables() to see what was parsed
+    Check that numeric ranges use hyphen (18-65, not &quot;18 to 65&quot;)
+    Factor levels should be comma-separated
+
+Lost Track of Projects
+
+```r
+# Find all projects
+list_all_projects(include_inactive = TRUE)
+
+# Check specific project status
+blitzschreiben_status()</code></pre>
+<p>##Conclusion</p>
+<p>The Blitzschreiben system helps you maintain momentum across multiple
+research projects. By enforcing time limits and providing structured
+templates, it prevents analysis paralysis while maintaining quality
+through documentation and review checkpoints.</p>
+<p>Remember: The goal is consistent progress, not perfection. Keep your
+pipeline flowing!</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

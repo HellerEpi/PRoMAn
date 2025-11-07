@@ -1,0 +1,892 @@
+---
+title: "PRoMan: A Complete Digital Research Production System"
+author: "John Grady Heller"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: 
+      collapsed: false
+      smooth_scroll: true
+    theme: flatly
+    highlight: tango
+vignette: >
+  %\VignetteIndexEntry{PRoMan: A Complete Digital Research Production System}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+library(PRoMan)
+```
+
+PRoMan is a comprehensive digital research production system that transforms academic workflow through intelligent project management, automated analysis orchestration, and the revolutionary **Blitzschreiben** methodology. Built specifically for ADHD-friendly workflows, PRoMan provides structure, automation, and continuity for the entire research lifecycle.
+
+## System Overview
+
+PRoMan integrates six major components:
+
+1.   **Project Management** - Standardized structure and intelligent file handling
+
+2.  **Blitzschreiben Methodology** - Three-stage research production pipeline
+
+3.  **Analysis Workflow Orchestration** - Master scripts and component-based analysis
+
+4.  **Intelligent Activity Tracking** - Automated logging and session management
+
+5.   **Publication Support** - Figure management and academic formatting
+
+6.   **Collaboration Tools** - Onboarding packages and communication templates
+
+---
+
+# Part I: Core Project Management
+
+## Installation and Setup
+
+```{r install}
+# Install from local development folder
+devtools::install("path/to/PRoMan")
+
+# Load PRoMan (automatically enables multi-project session tracking)
+library(PRoMan)
+```
+
+## Basic Project Creation
+
+```{r basic_project}
+# Create a standard project structure
+paths <- create_project("my_research_project")
+
+# This creates:
+# my_research_project/
+# ├── data/
+# │   ├── source/          # Raw data files
+# │   └── cleaned/         # Processed data
+# ├── r_programs/          # R scripts and analysis code
+# ├── personal_notes/      # Documentation and notes
+# │   ├── analyseblitz/    # Quick analysis notes
+# │   └── figures/         # Figure registry and outputs
+# ├── sources/             # Reference materials (PDFs, articles)
+# ├── old/                 # Archived files
+# └── analyse.qmd          # Main analysis document
+```
+
+
+## Automatic Project Detection
+
+PRoMan's intelligent project detection means you never need to set working directories or remember paths:
+
+```{r auto_detection}
+# From ANY subfolder in your project, PRoMan finds the root
+# Example: You open a script in project/r_programs/analysis.R
+
+paths <- get_project_paths()  # Automatically detects project root
+# Message: "Found project root: my_research_project"
+#         "  (detected from: r_programs)"
+
+# Works from any depth
+# Even from project/data/source/subfolder/deep/
+paths <- get_project_paths()  # Still finds the root!
+
+# The detection looks for required folders: data/, personal_notes/, r_programs/
+
+```
+
+## Intelligent File Set Management
+
+PRoMan excels at managing groups of related files - useful for multi-state, multi-year, or multi-condition datasets:
+
+```{r file_sets}
+# Find all files containing specific keywords
+count_files <- select_files_by_keyword("counts")
+# Returns: c("data_MD_counts.csv", "data_VA_counts.csv", ...)
+
+# Multiple keywords (must contain ALL)
+state_summary_files <- select_files_by_keyword(c("state", "summary"))
+
+# Load entire file sets at once
+state_data <- load_files_by_keyword("state")
+# Returns named list: state_data$data_MD_state, state_data$data_VA_state, etc.
+
+# Load from specific folder
+clean_data <- load_files_by_keyword("processed", 
+                                   folder_path = paths$data_cleaned)
+```
+
+## Creating File Sets
+
+PRoMan provides multiple ways to create file sets:
+
+```{r create_sets}
+# Method 1: Specify files directly
+create_file_set(c("data_2021.csv", "data_2022.csv"), 
+                set_name = "annual")
+
+# Method 2: Interactive selection
+create_file_set("interactive", set_name = "baseline")
+# Opens file browser for selection
+
+# Method 3: Recent files (last 30 minutes)
+create_file_set("recent:30", set_name = "just_processed")
+
+# Method 4: Use keywords if exact names unknown
+create_file_set(c("survey", "baseline"), set_name = "wave1")
+# Finds all files matching BOTH keywords
+
+# List detected file sets
+list_file_sets()
+# Shows organized groups like "State files", "Count files", etc.
+
+# Combine existing sets with new identifier
+add_to_sets(c("wave1", "wave2"), 
+            new_identifier = "combined",
+            archive_originals = TRUE)
+
+```
+
+## Automatic File Set Detection
+
+```{r set_detection}
+# PRoMan automatically detects file patterns
+analyze_file_sets()  # Shows all detected sets in project
+
+# Detection includes:
+# - State files (ending in _XX state codes)
+# - Time series (files with years)
+# - Processing stages (raw, clean, final)
+# - Common prefixes (automatically grouped)
+
+# Get file sets programmatically
+file_sets <- get_file_sets()
+# Returns nested list by folder and set type
+```
+
+## Advanced Data Cleaning and Quality Assessment
+
+```{r data_quality}
+# Comprehensive data quality assessment
+data_snapshot(my_data, save_summary = TRUE)
+
+# Detect suspicious values (common missing data codes)
+suspicious <- flag_suspicious_values(my_data, 
+                                   suspicious_codes = c(-999, -99, 999))
+
+# Analyze missing data patterns
+missing_analysis <- missing_data_patterns(my_data, threshold = 5)
+
+# Auto-detect ID columns
+id_cols <- detect_id_columns(my_data)
+
+# Standardize variable names to snake_case
+clean_data <- standardize_var_names(my_data, naming_convention = "snake_case")
+
+# Clean demographic variables automatically
+clean_data <- clean_demographics(my_data, 
+                                age_var = "participant_age",
+                                gender_var = "gender", 
+                                race_var = "ethnicity")
+
+# Generate comprehensive data dictionary
+data_dict <- generate_data_dictionary(clean_data, 
+                                    filename = "data_dictionary.csv",
+                                    include_stats = TRUE,
+                                    guess_descriptions = TRUE)
+```
+
+## String Cleaning Utilities
+
+```{r string_cleaning}
+# Standardize messy strings for joining
+messy_locations <- c(" maryland ", "VIRGINIA", "new york ", "  North Carolina  ")
+clean_locations <- clean_strings(messy_locations)
+# Result: c("MARYLAND", "VIRGINIA", "NEW_YORK", "NORTH_CAROLINA")
+
+# Clean data frame columns
+df <- clean_strings(df, "state_name", "state_clean")  # Create new column
+df <- clean_strings(df, "location_var")               # Overwrite original
+```
+
+## File Management and Organization
+
+```{r file_management}
+# Archive old files with automatic dating
+archive_files(c("old_analysis.R", "temp_data.csv"))
+
+# Find files that haven't been touched recently
+stale_files <- find_stale_files(days = 30)
+
+# Check for large files taking up space
+large_files <- find_large_files(min_size_mb = 50)
+
+# Get detailed folder information
+folder_summary <- get_folder_summary(sort_by = "date")
+
+# Verify required files exist before analysis
+check_required_files(c("main_data.csv", "lookup_table.csv"))
+
+# Save data with automatic timestamps
+save_with_timestamp(analysis_results, "final_model")
+# Creates: final_model_20231201_143022.csv
+
+# Compare datasets before and after processing
+comparison <- compare_datasets(original_data, processed_data, 
+                             id_column = "participant_id")
+```
+
+---
+
+# Part II: The Blitzschreiben Methodology
+
+The heart of PRoMan is the **Blitzschreiben** system - a three-stage research production methodology designed for rapid, systematic research execution.
+
+## Blitzschreiben Overview
+
+**Philosophy**: Move ideas from conception to publication through structured, time-bounded stages with clear decision points.
+
+**Weekly Rhythm**:
+- **Monday**: Stage I Triage + Stage II Prep
+- **Tuesday**: Stage II Mock Analysis
+- **Wednesday**: Stage II Real Analysis
+- **Thursday**: Stage III Draftschreiben
+- **Friday**: QA Review + Source Reading
+
+**Pipeline Management**: Maintain 4-5 projects in Stage I, 3 in Stage II, 2 in Stage III
+
+## Stage I: Idea Triage (12-15 minutes per idea)
+
+Rapid evaluation to determine which ideas merit further development.
+
+```{r stage1}
+# Create new Blitzschreiben project
+create_blitz_project("Social Media Impact on Academic Performance", "P4.1")
+
+# Start timed triage session
+start_triage_timer(minutes = 15, project_code = "P4.1")
+
+# Check remaining time during triage
+check_triage_time()
+
+# Complete triage with decision
+end_triage_timer(decision = "ready_to_share", 
+                next_steps = "Find social media usage datasets")
+```
+
+**Stage I Card Template includes**:
+- Research question formulation
+- Data/dataset identification
+- Sample description (N, demographics, key variables)
+- Analysis plan (models, adjustments, visualizations)
+- Background warrant (literature gap, importance)
+- Current barriers and challenges
+- **Decision**: Ready to share / Needs development / Discard
+
+## Stage II: Analyseblitz (Half-day intensive)
+
+Systematic analysis execution through mock analysis → real analysis → sniff test.
+
+```{r stage2}
+# Create analyseblitz template
+create_analyseblitz_template("P4.1", analysis_type = "regression")
+
+# Check Stage II progress
+stage2_progress_check("P4.1")
+```
+
+**Stage II Workflow**:
+
+1. **Prep Phase (15-30 minutes)**
+   - Reference gathering
+   - Package identification
+   - Method clarification
+
+2. **Mock Analysis**
+   - Data simulation matching expected structure
+   - Complete analysis pipeline on simulated data
+   - Debug and refine approach
+
+3. **Real Analysis**
+   - Copy-paste mock analysis code
+   - Replace simulated data with real data
+   - Execute full analysis
+
+4. **Sniff Test**
+   - Results plausibility check
+   - Effect size reasonableness
+   - Direction and magnitude assessment
+
+## Stage III: Draftschreiben (Paper writing)
+
+Complete paper drafting with structured sections and word count targets.
+
+```{r stage3}
+# Create draft template
+create_draftschreiben_template("P4.1", 
+                              paper_type = "journal",
+                              target_journal = "Journal of Educational Psychology")
+
+# Track source collection
+track_sources(search_strategy = "systematic review + pearl growing", 
+             new_sources = 12, 
+             project_code = "P4.1")
+
+# Pearl growing reference search
+pearl_growing_tracker(seed_paper = "Smith et al. 2023", 
+                     direction = "downstream", 
+                     found_count = 8)
+
+# Check Stage III progress  
+stage3_progress_check("P4.1")
+```
+
+**Stage III Features**:
+- Word count targets by paper type
+- Integration with Stage II results
+- Bibliography management
+- 80% completion threshold tracking
+- Automatic reference to previous stage work
+
+---
+
+# Part III: Analysis Workflow Orchestration
+
+PRoMan's master script system orchestrates complex analyses through modular, reusable components.
+
+## Master Script System
+
+```{r master_scripts}
+# Create master analysis script with components
+create_master_script("P4.1", 
+                    analysis_components = c("data_prep", 
+                                          "comprehensive_cleaning",
+                                          "descriptive_stats", 
+                                          "main_analysis", 
+                                          "visualization"),
+                    file_sets = list(
+                      "state_data" = c("data_AL.csv", "data_CA.csv", "data_TX.csv"),
+                      "summary_files" = c("summary_2021.csv", "summary_2022.csv")
+                    ))
+
+# Execute complete analysis pipeline
+run_master_analysis("P4.1")
+```
+
+## Automatic File Set Configuration
+
+```{r auto_file_sets}
+# PRoMan can detect your file sets automatically
+create_master_script("P4.1")  # Auto-detects file patterns
+
+# Or specify custom file sets
+create_master_script("P4.1",
+                    file_sets = list(
+                      baseline = c("baseline_CA.csv", "baseline_NY.csv"),
+                      followup = c("followup_CA.csv", "followup_NY.csv")
+                    ))
+```
+
+**Master Script Features**:
+- **Automatic path configuration** using PRoMan project structure
+- **File set integration** for batch processing
+- **Component timing** and progress tracking
+- **Error handling** with component-level isolation
+- **Logging integration** with Blitzschreiben system
+
+## Comprehensive Data Cleaning
+
+The comprehensive cleaning component now includes:
+
+```{r comprehensive_cleaning}
+# Automatically generated comprehensive_cleaning component includes:
+# - Data quality assessment with reports
+# - Suspicious value detection
+# - Missing data pattern analysis  
+# - ID column detection
+# - Variable name standardization
+# - Demographic variable cleaning
+# - Data dictionary generation
+# - Before/after comparison reports
+# - All reports saved to personal_notes folder
+```
+
+## Component Templates
+
+PRoMan provides intelligent templates for common analysis components:
+
+### Data Preparation Component
+
+```{r data_prep_component}
+# Generated template includes:
+# - File set loading using PRoMan functions
+# - Data cleaning with PRoMan string utilities
+# - Standardized output to data/cleaned folder
+```
+
+### Descriptive Statistics Component
+
+```{r desc_component}
+# Generated template includes:
+# - data_snapshot() integration
+# - Group-wise summaries
+# - Automatic output to personal_notes folder
+```
+
+### Main Analysis Component
+
+```{r analysis_component}
+# Generated template includes:
+# - Model specification area
+# - Results capture and export
+# - Integration with Stage II mock analysis
+```
+
+### Visualization Component
+
+```{r viz_component}
+# Generated template includes:
+# - Plot creation from analysis results
+# - Standardized figure saving
+# - Publication-ready formatting
+```
+
+
+## Unified Template Creation
+
+These functions can be used for managing projects across different stages, or jumping in where needed.
+
+```{r unified_templates}
+# Create any stage template with one function
+create_blitz_template(1, "P4.1", title = "My Research Idea")     # Stage I
+create_blitz_template(2, "P4.1", analysis_type = "regression")   # Stage II  
+create_blitz_template(3, "P4.1", paper_type = "journal")        # Stage III
+
+# Or use stage names
+create_blitz_template("triage", "P4.1")
+create_blitz_template("analyse", "P4.1")
+create_blitz_template("draft", "P4.1")
+
+# Initialize new project (creates tracker + Stage I template)
+init_blitz_project("P4.1", "Research idea title")
+```
+
+---
+
+# Part IV: Publication Support
+
+## Academic Figure Management
+
+PRoMan provides comprehensive figure management with automatic registration and metadata tracking:
+
+```{r figure_management}
+# Save figure with automatic registration
+save_figure(my_plot, 
+           figure_name = "main_results_regression",
+           figure_type = "main",  # or "supplementary", "exploratory"
+           caption = "Regression results showing relationship between X and Y",
+           notes = "Used robust standard errors",
+           formats = c("png", "pdf"),
+           dpi = 300,
+           width = 8, 
+           height = 6)
+
+# List all registered figures
+list_figures(type = "main")
+
+# Update figure metadata without regenerating
+update_figure_info("main_results_regression",
+                  caption = "Updated caption with more detail",
+                  figure_type = "supplementary")
+
+# Create figure summary document
+create_figure_summary(output_format = "html")
+
+# Export submission-ready figure package
+export_figure_package(figures = "all", 
+                     format = "tiff",  # Journal requirement
+                     dpi = 600,
+                     create_list = TRUE)
+```
+
+## Academic Formatting and Styling
+
+```{r academic_formatting}
+# Use publication-ready theme
+library(ggplot2)
+p <- ggplot(data, aes(x, y)) +
+  geom_point() +
+  theme_academic(base_size = 11, grid = TRUE)
+
+# Colorblind-friendly palettes
+colors <- academic_palette("categorical", n = 4)
+# Uses Wong (2011) colorblind-safe colors
+
+# Format numbers for publication
+p_values <- format_academic(c(0.001, 0.043, 0.52), type = "p_value")
+# Returns: "p < .001", "p = .04", "p = .52"
+
+correlations <- format_academic(c(0.234, -0.891), type = "correlation")
+# Returns: ".23", "-.89"
+
+# Create matching table and figure
+results <- create_table_figure_pair(data,
+                                  table_vars = c("outcome", "predictor1", "predictor2"),
+                                  plot_type = "bar",
+                                  group_var = "condition",
+                                  save_pair = TRUE,
+                                  pair_name = "descriptive_stats")
+```
+
+---
+
+# Part V: Collaboration and Communication
+
+## Collaborator Onboarding
+
+PRoMan can generate comprehensive onboarding packages for new collaborators:
+
+```{r collaboration}
+# Create onboarding package
+create_collaborator_onboarding(project_code = "P4.1",
+                             collaborator_name = "Dr. Smith",
+                             package_type = "mixed",  # executive, tutorial, operational, mixed
+                             focus_areas = "all")
+
+# This creates:
+# - Executive summary (strategic overview)
+# - Tutorial walkthrough (methods explanation)
+# - Operational details (technical implementation)
+# - Navigation guide
+
+# The package automatically extracts information from:
+# - Stage I triage cards
+# - Stage II analyseblitz files
+# - Stage III drafts
+# - Data dictionaries
+# - Figure registries
+```
+
+## Communication Templates
+
+```{r communication}
+# Generate email update templates
+create_update_template(project_code = "P4.1",
+                     update_type = "results")  # progress, milestone, request, results
+
+# Create meeting agendas
+create_meeting_agenda(project_code = "P4.1",
+                    meeting_type = "progress",  # kickoff, progress, results, planning
+                    attendees = c("Dr. Smith", "Dr. Jones"))
+```
+
+---
+
+# Part VI: Intelligent Activity Tracking
+
+## Multi-Project Session Management
+
+PRoMan automatically tracks all projects accessed during an R session and prompts for comprehensive logging at exit.
+
+```{r session_tracking}
+# PRoMan automatically tracks when you access projects via get_project_paths()
+# No manual intervention required!
+
+# Check current pipeline status
+blitzschreiben_status()
+
+# See today's recommended tasks
+todays_blitz_tasks()
+
+# Get weekly pipeline report
+weekly_blitz_report()
+```
+
+## Project Logging
+
+```{r enhanced_logging}
+# Generate comprehensive project log
+generate_project_log(days_back = 7, save_to_file = TRUE)
+
+# Quick status check
+quick_project_status()
+
+# The log includes:
+# - Recent file activity with emojis for quick scanning
+# - Project structure visualization
+# - Automatic file set detection
+# - Activity inference (e.g., "📊 Data pipeline active")
+# - Smart insights about workflow patterns
+```
+
+## Smart Exit Logging
+
+When you quit R, PRoMan automatically:
+
+1. **Detects all projects** worked on during the session
+2. **Shows session summary** with duration and project list
+3. **Prompts for project-specific comments** about next steps/ideas
+4. **Generates individual logs** for each project with your comments
+5. **Preserves continuity** across work sessions
+
+PRoMan adapts to your environment:
+- **In RStudio**: Uses console input for compatibility
+- **In R GUI**: Uses graphical dialogs
+- **Automatic fallback**: If GUI fails, switches to console
+
+The system now tracks actual project paths during your session, ensuring logs are always generated in the correct locations even when working across multiple project directories.
+
+
+## Pipeline Management
+
+```{r pipeline_management}
+# View complete pipeline status
+blitzschreiben_status()
+# Shows all projects across stages with recommendations
+
+# Advance projects through stages
+advance_to_next_stage("P4.1", 
+                     decision = "ready", 
+                     next_steps = "Begin mock analysis with simulated data")
+
+# Check what you should work on today
+todays_blitz_tasks()
+# Provides day-specific recommendations based on Blitzschreiben methodology
+```
+
+---
+
+# Complete Workflow Example
+
+## Scenario: New Research Project
+
+```{r complete_workflow}
+# 1. Monday: Create new project and do Stage I triage
+create_blitz_project("Sleep Quality and Academic Performance", "P5.2")
+start_triage_timer(15, "P5.2")
+# [Complete triage card]
+end_triage_timer("ready_to_share", "Find sleep survey datasets")
+
+# 2. Advance to Stage II
+advance_to_next_stage("P5.2", "ready")
+
+# 3. Tuesday: Create analyseblitz template
+create_analyseblitz_template("P5.2", analysis_type = "regression")
+# [Complete mock analysis in Quarto document]
+
+# 4. Wednesday: Execute real analysis with master script
+create_master_script("P5.2", 
+                    analysis_components = c("data_prep", "comprehensive_cleaning",
+                                          "sleep_analysis", "visualization"))
+run_master_analysis("P5.2")
+
+# 5. Thursday: Advance to Stage III and begin writing  
+advance_to_next_stage("P5.2")
+create_draftschreiben_template("P5.2", paper_type = "journal")
+
+# 6. Friday: Review progress and plan next steps
+stage3_progress_check("P5.2")
+blitzschreiben_status()  # Overall pipeline health check
+```
+
+## Session Exit Example
+
+When you quit R after working on multiple projects:
+
+```
+=== R SESSION ENDING ===
+Projects worked on this session:
+
+    P5.2
+    A3.1
+    P2.4
+
+Generate project logs with comments? (y/n): y
+
+--- PROJECT: P5.2 ---
+Next steps/ideas: Complete sleep quality variable coding, run sensitivity analysis
+✅ Log generated for P5.2
+
+--- PROJECT: A3.1 ---
+
+Next steps/ideas: Submit to conference, prepare presentation slides
+✅ Log generated for A3.1
+
+--- PROJECT: P2.4 ---
+Next steps/ideas: Address reviewer comments on methods section
+
+✅ Log generated for P2.4
+
+🎉 Multi-project logging completed!
+
+```
+
+
+---
+
+## File Naming for Optimal Set Detection
+
+- Use consistent suffixes: `data_CA.csv`, `data_NY.csv`
+- Include years: `results_2021.csv`, `results_2022.csv`
+- Use underscores as separators
+- Avoid spaces in filenames
+- Include processing stage: `data_CA_raw.csv`, `data_CA_clean.csv`
+
+
+# Best Practices and Tips
+
+## Blitzschreiben Success Strategies
+
+1. **Respect time limits** - Stage I triage should genuinely take 12-15 minutes
+2. **Use mock analysis** - Don't skip the simulation step in Stage II
+3. **Maintain pipeline balance** - Don't let any stage get overloaded
+4. **Trust the process** - The methodology is designed for momentum, not perfection
+
+## File Organization Tips
+
+- **Use consistent naming** for file sets (state_XX, year_YYYY patterns)
+- **Archive regularly** using PRoMan's archive functions
+- **Leverage file set detection** - let PRoMan identify patterns automatically
+- **Keep Stage II and Stage III connected** - use source() to import results
+
+## Data Quality Best Practices
+
+- Run `data_snapshot()` on new datasets immediately
+- Use `flag_suspicious_values()` to catch common missing data codes
+- Generate data dictionaries early and update them often
+- Use the comprehensive_cleaning component for systematic quality checks
+
+## Figure Management Tips
+
+- Register all figures with `save_figure()` for tracking
+- Use descriptive figure names without spaces
+- Include both PNG (for viewing) and PDF/TIFF (for publication)
+- Update captions and notes as interpretations evolve
+- Export figure packages when submitting papers
+
+## Collaboration Strategies
+
+- Generate onboarding packages when adding team members
+- Use "executive" package type for PIs and senior collaborators
+- Use "operational" package type for RAs doing hands-on work
+- Update packages as project evolves
+- Use communication templates for consistent updates
+
+## ADHD-Friendly Features
+
+- **Visual pipeline status** - always see where you are
+- **Time boundaries** - clear start/stop points prevent hyperfocus
+- **Automatic logging** - capture progress without remembering to document
+- **Daily task guidance** - know what to work on when
+- **Multi-project continuity** - never lose track of what you were doing
+
+## Troubleshooting
+
+**"No Blitzschreiben tracker found"**
+- Create your first Blitzschreiben project with `create_blitz_project()`
+
+**Master script errors**
+- Check that all component scripts exist in r_programs folder
+- Verify file paths using `get_project_paths()`
+
+**Exit logging not working**
+- Ensure you loaded PRoMan with `library(PRoMan)`
+- Make sure you're in a valid project directory when working
+
+**Pipeline recommendations seem off**
+- Run `blitzschreiben_status()` to see current project distribution
+- Use `advance_to_next_stage()` to move completed projects forward
+
+**Figure registry issues**
+- Make sure to use `save_figure()` instead of direct `ggsave()`
+- Check that figures folder exists in personal_notes
+
+**Data cleaning errors**
+- Verify column names exist before using cleaning functions
+- Check data types - some functions expect numeric columns
+
+**Onboarding package missing information**
+- Ensure Blitzschreiben stages have been completed
+- Manually edit generated documents to add missing details
+
+**"Can't find project root"**
+- Ensure you have the required folders: data/, r_programs/, personal_notes/
+- PRoMan searches up to 10 levels from current directory
+
+**"File sets not showing"**
+- File sets need at least 2 files with common patterns
+- Use `analyze_file_sets()` to see what PRoMan detects
+- Check both data/source and data/cleaned folders
+
+**"Exit logging dialog not appearing"**
+- In RStudio, check the console for prompts
+- The system uses console input in RStudio for better compatibility
+
+**"Master script components missing"**
+- Component scripts are auto-generated as templates
+- Check r_programs/ folder for component files
+- Each component needs format: componentname_PROJECTCODE.R
+
+
+---
+
+# Advanced Features
+
+## Custom Analysis Components
+
+You can create custom component templates for specialized analyses:
+
+```{r custom_components}
+# Create master script with custom components
+create_master_script("P6.1",
+                    analysis_components = c("data_prep", "survival_analysis", 
+                                          "propensity_matching", "sensitivity_tests"))
+```
+
+## Integration with External Tools
+
+PRoMan works seamlessly with:
+- **Quarto/RMarkdown** for reproducible analysis
+- **Reference managers** through .bib file support
+- **External data sources** via flexible file loading
+
+## Scaling Up
+
+For large research programs:
+- Use project naming conventions (P1.1, P1.2 for related projects)
+- Maintain separate Blitzschreiben trackers for different research lines
+- Leverage file set detection for multi-site or multi-year studies
+
+---
+
+## Getting Help
+
+- Use `?function_name` for detailed function help
+- Check `blitzschreiben_status()` when unsure about pipeline state
+- Review project logs in `personal_notes/logs/` for session continuity
+- Run `todays_blitz_tasks()` when you need direction
+- Check `list_figures()` to see all registered figures
+- Review data quality reports in `personal_notes/`
+- Generated onboarding packages are starting points - customize them!
+
+## Interactive Reference Guide
+
+```{r help_system}
+# Open interactive HTML reference in browser
+proman_help()  # Complete reference guide
+
+# Filter by category
+proman_help("data")      # Just data management functions
+proman_help("blitz")     # Blitzschreiben functions
+proman_help("figures")   # Figure management
+
+# Compact mode for side-by-side viewing
+proman_help(compact = TRUE)
+
+```
+
+

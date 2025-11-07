@@ -1,0 +1,102 @@
+
+-------------------------------------------------------------------------------------------------
+					     NOTES
+-------------------------------------------------------------------------------------------------
+
+- NEW VERSION - 0.0.0.9006 - 06.10.25
+	> implemented the fallback system, user initiated backup saves of all files in the 	project in a hidden folder.  
+	> does not do versioning or multiple saves, only ein fallback save at a time.  Clean, 	minimal, does not try to do what Git does.
+	> Users can call the function fallback() to reset to the previous fallback status.
+	> last fallback set should be reflected in project logs.
+
+
+- 0.0.0.9005 - 03.10.25 - added in a workflows system.  PRoMan *should* now be able  	to recognize marked chunks of code, process them as workflows, and apply them to sets of 	files or save them as scripts to be sourced.
+	> This may be the last core feature added in order to prevent feature creep. Helper 	functions and improvements of current core capabilities should probably be the focus 	moving forward.
+		~ E.g., functions that help manage sources may need expanding and working with, 		everything needs testing and streamlining, etc.
+		~ the only other potential novel addition would be an emergency backup/snapshot 		system.  A quick rip-cord emergency reset that stops some goof ups so could save 		a lot of time.  "Fallback"? Would have to be easier & lighter than GitHub.
+
+
+- 0.0.0.9004 - including a hidden .proman file in projects so that there are no setwd() 	conflicts, functions have meta-data accessible, some things are streamlined.
+	> claude put a bunch of "utility" functions in there.  Let's just make sure everything 			works and then probably rip a bunch of that garbage out.
+	> .proman is a JSON file, so jsonlite may be the only dependency
+
+- 15-20 minute triage cards are great.  However, there appears to be a stage between I and II at 	this point in time, in which the analysis is being operationalized. May need to insert a 	new stage.
+
+-------------------------------------------------------------------------------------------------
+					    TO DO
+-------------------------------------------------------------------------------------------------
+
+- there is a test project that needs to be removed from blitz tracking
+
+- Currently redundant or partially redundant functions for further evaluation:
+	> set_project_paths() & set_project()
+
+- do I want to poll friends in order to find out what things and domains of things are struggles 	that PRoMan could help them with?
+
+- Need to make sure that there is a way to set simulations easily for genomic/genetic data.
+	> do a test and see if it can be done currently, what that looks like, go from there, 	etc.
+
+- currently have a to_snake_case() helper in blitzschreiben.R and I might not need it, but it us 	currently used when making the simulation code in the blitz template.
+
+-------------------------------------------------------------------------------------------------
+					     BUGS
+-------------------------------------------------------------------------------------------------
+CLASS A
+
+- currently, blitz tracker created in every project personal notes, project and master tracker 	needs to be resolved
+
+-------------------------------------------------------------------------------------------------
+CLASS B
+
+class III blitz template has messed up YAML - date, references style, references need to exist for sure, etc.
+
+- init_blitz_project(), advance_to_next_stage() require you to enter the code and name, even 	though that is available from .proman now.
+
+- blitzschreiben_status() - Searches multiple directories for a central tracker 	list_all_projects() - Uses find_blitz_tracker() which looks in the current project's 	personal_notes/
+	> need to decide on either finding a way to have a central tracker (which probably should 	happen since the balance and not overloading plan of two big projects and etc. 			should be done)
+		~ hidden folder somewhere? non hidden folder?
+
+- blitz templates start with "paths <- get_project_paths()" but should now be replaced with 	"set_project(proman info)"
+
+- currently, blitz formats have all the things together in one doc - sim, real, etc.  Do we want 	all of stage II on one doc, or multiple docs (sim, desc., real, etc.)?
+	> no, we want the notes and "lab notebook" for sim and learning.  We want to have a 		"real" next part very easily set up.  natural, and also easier.
+
+-------------------------------------------------------------------------------------------------
+CLASS C
+
+- academic_palette() needs the categorical colors re-worked because there is black in there.  	Should add more palettes and make it a bit more useful.
+
+- report does not state the timeframe of the report's observations.
+
+- if registry is open, save_figure() fails because it can't append it.  probably need an error 	message for that case.
+
+- generate_log_with_comment() does not prompt for comment when called on its 	own("generate_log_with_comment()"), but must be entered such as: 	generate_project_log_with_comment(user_comment = "This is my comment")
+	> add logic so that if no value for user_comment, one is promped in console?
+
+- when calling a blitz template, author is always "your name" and the information might be 	something available in .proman.
+
+- stage1_traige template is a markdown file currently, which is fine, but needs to be evaluated.
+	> Can we set mode to visual?
+	> can use a GUI if that doesn't work well.
+		~ GUI could have the timer displayed... so that could be cool
+		~ currently switching to visual screws up the N parsing
+
+
+-------------------------------------------------------------------------------------------------
+				     Aesthetics (Class D Bugs)
+-------------------------------------------------------------------------------------------------
+
+- Use Tufte's fonts and ideas where tractable as a general rule 
+
+- search for other good palettes
+	> add in the Hopkins official colors as a palette
+
+- report from logging is confusing. there are recent file activity and recent activity summary sections, and both present seemingly conflicting information at face value.
+	> the summary is the part that tries to determine recent activity patterns.  These do 	different things, but may need to be relabeled in order to clarify
+
+- the stupid UTF-8 emojis that Claude keeps putting in everything broke.  Should remove all the stupid emojis.  Can replace with things like `[DATA]` instead of the "data" emoji.
+	> I guess I should also remember that umlauts are also UTF-8 encoded..
+
+- blitz templates need to be reformatted
+	> a number of things are all caps for some reason
+	> chunks can be code-fold = T, echo = F, etc.

@@ -1,0 +1,324 @@
+---
+title: "Blitzschreiben: Rapid Research Workflow in PRoMan"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Blitzschreiben: Rapid Research Workflow in PRoMan}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+
+
+library(PRoMan)
+```
+
+## Overview
+
+The Blitzschreiben system is a structured workflow for rapidly developing research projects from initial idea to draft manuscript. It emphasizes:
+
+    Speed: Time-boxed activities to prevent overthinking
+    Structure: Clear stages with defined outputs
+    Iteration: Multiple projects in parallel at different stages
+    Quality: Built-in review points and documentation
+
+## The Three Stages
+### Stage I: Idea Triage (Blitzschriften)
+
+    Time: 12-15 minutes per idea
+    Goal: Quickly assess if an idea is ready to pursue
+    Output: Structured planning document with parseable variables
+
+### Stage II: Analysis Development (Analyseblitz)
+
+    Time: 2-4 hours total
+    Goal: Develop and test analysis with mock data before real data
+    Output: Documented analysis pipeline in Quarto
+
+### Stage III: Draft Writing (Draftschreiben)
+
+    Time: Focused writing sessions
+    Goal: Create 80% complete draft for sharing
+    Output: Structured manuscript draft
+
+## Complete Workflow Example
+
+Let's walk through a complete project from idea to draft.
+Step 1: Initialize a Blitzschreiben Project
+
+```r
+# Start a new project idea
+init_blitz_project(
+  project_code = "P3.1",
+  idea_title = "Treatment Effects on Patient Outcomes"
+)
+```
+
+This creates:
+
+    A Stage I template in your personal_notes folder
+    An entry in the Blitzschreiben tracker
+    Project metadata in .proman
+
+Step 2: Complete Stage I Triage
+
+Start your timer and fill out the Stage I template:
+```r
+# Start the 15-minute timer
+start_triage_timer(minutes = 15, project_code = "P3.1")
+
+# Open the template (it's in personal_notes/stage1_triage_P3.1.md)
+# Fill it out quickly!
+
+# Check remaining time
+check_triage_time()
+```
+The Stage I template includes a variables table that is crucial for automation:
+
+
+| Role | Variable | Type | Values/Range | Description |
+|------|----------|------|--------------|-------------|
+| Exposure | treatment | factor | control, treatment_a, treatment_b | Treatment group |
+| Outcome | pain_score | numeric | 0-10 | Pain rating |
+| Outcome | mobility | numeric | positive | Mobility score |
+| Covariate | age | numeric | 18-85 | Age in years |
+| Covariate | gender | factor | male, female, other | Gender |
+| Covariate | baseline_pain | numeric | 0-10 | Baseline pain |
+
+Complete your triage decision:
+
+
+```r
+# End timer and record decision
+end_triage_timer(
+  decision = "ready",
+  next_steps = "Move to Stage II analysis"
+)
+
+# Advance to next stage
+advance_to_next_stage("P3.1", decision = "ready")
+```
+Step 3: Verify Stage I Parsing
+
+Before moving to Stage II, check that your variables were parsed correctly:
+
+
+```r
+# View parsed variables
+show_stage1_variables("P3.1")
+
+# Test the simulation
+test_data <- test_stage1_simulation("P3.1", n = 10)
+```
+Step 4: Create Stage II Analyseblitz
+
+```r
+# Create Stage II template with auto-populated simulation
+create_blitz_template(
+  stage = 2, 
+  project_code = "P3.1",
+  analysis_type = "regression"
+)
+```
+The Stage II template now includes:
+
+    Pre-filled simulation code based on your Stage I variables
+    Sections for mock and real analysis
+    Quarto format for documentation
+
+Example of auto-generated simulation code:
+
+```r
+
+# Data simulation based on Stage I specifications
+set.seed(42)
+n <- 500  # Sample size from Stage I
+
+# Generate variables from Stage I table
+sim_data <- data.frame(
+  treatment = sample(c("control", "treatment_a", "treatment_b"), n, replace = TRUE),
+  pain_score = runif(n, min = 0, max = 10),
+  mobility = rgamma(n, shape = 2, rate = 1),  # Positive values
+  age = runif(n, min = 18, max = 85),
+  gender = sample(c("male", "female", "other"), n, replace = TRUE),
+  baseline_pain = runif(n, min = 0, max = 10)
+)
+```
+Step 5: Complete Stage II Analysis
+
+Follow the Stage II workflow:
+
+```r
+# 1. PREP: Find references (15-30 min)
+# 2. MOCK: Run analysis on simulated data
+# 3. REAL: Apply to actual data
+# 4. SNIFF TEST: Check if results make sense
+
+# Track your progress
+stage2_progress_check("P3.1")
+
+# When complete, advance to Stage III
+advance_to_next_stage("P3.1")
+```
+
+Step 6: Create Stage III Draft
+
+```r
+# Create draft template
+create_blitz_template(
+  stage = 3,
+  project_code = "P3.1", 
+  paper_type = "journal",
+  target_journal = "Journal of Clinical Research"
+)
+
+# The template includes:
+# - Imported research question from Stage I
+# - Structured sections with word count targets
+# - Placeholders for Stage II results
+```
+
+Pipeline Management
+View Your Pipeline Status
+
+```r
+# See all active projects across stages
+blitzschreiben_status()
+
+# Get today's recommended tasks
+todays_blitz_tasks()
+
+# Weekly report
+weekly_blitz_report()
+```
+
+Recommended Weekly Schedule
+
+    Monday: Stage I triage + Stage II prep
+    Tuesday: Stage II mock analysis
+    Wednesday: Stage II real analysis
+    Thursday: Stage III draft writing
+    Friday: QA review and reading
+
+Tips for Success
+1. Don't Overthink Stage I
+
+The 15-minute limit forces quick decisions. It's better to have multiple ideas in the pipeline than one perfect idea.
+2. Fill Out the Variables Table Completely
+
+The more detail in your Stage I variables table, the better your Stage II simulation:
+
+    Use comma-separated lists for factor levels
+    Use "min-max" format for numeric ranges (e.g., "18-65")
+    Use "positive" for positive-only numeric variables
+
+3. Mock Analysis is Not Wasted Time
+
+Testing your analysis on simulated data:
+
+    Catches coding errors early
+    Documents your analytical decisions
+    Creates reusable code for real data
+
+4. Maintain Pipeline Balance
+
+Aim for:
+
+    4-5 projects in Stage I
+    2-3 projects in Stage II
+    1-2 projects in Stage III
+
+5. Use the Helper Functions
+
+```r
+# Check parsed variables
+show_stage1_variables("P3.1")
+
+# Test simulation before Stage II
+test_stage1_simulation("P3.1")
+
+# Track progress
+stage2_progress_check("P3.1")
+stage3_progress_check("P3.1")
+
+# Manage your pipeline
+list_all_projects()
+update_tracker_entry("P3.1", action = "pause")  # If needed
+```
+
+Advanced Features
+Master Scripts for Complex Analyses
+
+For projects with multiple analysis components:
+
+```r
+# Create a master script that orchestrates components
+create_master_script(
+  project_code = "P3.1",
+  analysis_components = c("data_prep", "descriptive", "main_analysis", "sensitivity"),
+  file_sets = list(
+    baseline = c("baseline_2023.csv", "baseline_2024.csv"),
+    followup = c("followup_6mo.csv", "followup_12mo.csv")
+  )
+)
+
+# Run the complete analysis pipeline
+run_master_analysis("P3.1")
+```
+
+Integration with PRoMan Features
+
+The Blitzschreiben system integrates with other PRoMan features:
+
+```r# Use PRoMan's file management in Stage II
+data_files <- select_files_by_keyword("treatment")
+data <- load_files_by_keyword("treatment")
+
+# Save figures with metadata
+p <- ggplot(sim_data, aes(x = treatment, y = pain_score)) + 
+  geom_boxplot()
+save_figure(p, "treatment_effects", caption = "Pain scores by treatment group")
+
+# Track sources for literature review
+track_sources(
+  search_strategy = "Pearl growing from Smith et al 2023",
+  new_sources = 5,
+  project_code = "P3.1"
+)
+```
+
+##Troubleshooting
+Variables Not Parsing from Stage I
+
+Check that your variables table:
+
+    Uses the exact header format with pipe separators
+    Has content in the Variable column (not empty)
+    Uses consistent formatting
+
+Stage II Simulation Not Working
+
+    Run show_stage1_variables() to see what was parsed
+    Check that numeric ranges use hyphen (18-65, not "18 to 65")
+    Factor levels should be comma-separated
+
+Lost Track of Projects
+
+```r
+# Find all projects
+list_all_projects(include_inactive = TRUE)
+
+# Check specific project status
+blitzschreiben_status()
+```
+
+##Conclusion
+
+The Blitzschreiben system helps you maintain momentum across multiple research projects. By enforcing time limits and providing structured templates, it prevents analysis paralysis while maintaining quality through documentation and review checkpoints.
+
+Remember: The goal is consistent progress, not perfection. Keep your pipeline flowing!

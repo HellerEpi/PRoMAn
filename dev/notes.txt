@@ -1,0 +1,129 @@
+
+-------------------------------------------------------------------------------------------------
+					     NOTES
+-------------------------------------------------------------------------------------------------
+
+- 0.6.0.9000 - 06.11.2025 > "PRoMAn" 
+	> added in the reference management functions and further tested blitzschreiben
+	> now can create a bibliography, update it with an annotation function.
+
+
+ - 0.5.0.9016 - 20.10.25
+	> consolidated all pathing and simplified calls to files and folders
+	> now just read or select files takes care of pretty much everything.  E.g.:
+			dc_data <- read_file("DC_counts", "cleaned") #where DC_counts is a 					filename and cleaned is the folder .../data/cleaned
+
+- 0.4.0.9000 - 06.10.25
+	> implemented the fallback system, user initiated backup saves of all files in the 	project in a hidden folder.  
+	> does not do versioning or multiple saves, only ein fallback save at a time.  Clean, 	minimal, does not try to do what Git does.
+	> Users can call the function fallback() to reset to the previous fallback status.
+	> last fallback set should be reflected in project logs.
+
+
+- 0.3.0.9000 - 03.10.25 - added in a workflows system.  PRoMan *should* now be able  	to recognize marked chunks of code, process them as workflows, and apply them to sets of 	files or save them as scripts to be sourced.
+	> This may be the last core feature added in order to prevent feature creep. Helper 	functions and improvements of current core capabilities should probably be the focus 	moving forward.
+		~ E.g., functions that help manage sources may need expanding and working with, 		everything needs testing and streamlining, etc.
+		~ the only other potential novel addition would be an emergency backup/snapshot 		system.  A quick rip-cord emergency reset that stops some goof ups so could save 		a lot of time.  "Fallback"? Would have to be easier & lighter than GitHub.
+
+
+- 0.2.0.9000 - including a hidden .proman file in projects so that there are no setwd() 	conflicts, functions have meta-data accessible, some things are streamlined.
+
+
+-------------------------------------------------------------------------------------------------
+					    TO DO
+-------------------------------------------------------------------------------------------------
+
+- worth submitting to rOpenSci for peer review? Honestly have no idea if it is in or out of their 	scope.  But, a peer review would be nice whether or not they want it in their packages.
+
+- Add functions to make charts and graphics like those from P2, and also to make chart panels  	well - scalesaligned, sizing/proportions correct, etc.
+
+- Currently redundant or partially redundant functions for further evaluation:
+	> set_project_paths() & set_project()
+
+- do I want to poll friends in order to find out what things and domains of things are struggles 	that PRoMan could help them with?
+
+- Need to make sure that there is a way to set simulations easily for genomic/genetic data.
+	> do a test and see if it can be done currently, what that looks like, go from there, 	etc.
+	> can also just include a dataset for testing in the package... but that is less fun and 		flexible.
+
+- some projects are very large, and the .fallback might also be large.  We might zip the fallback 	info?
+
+- may want to find a good way to clean variables from workflows output - currently just names 	everything after files.  It's fine because it's easy to clean, but it would be better if 	PRoMan helps with this.
+
+- blitzschreiben_status() shows all projects, so this is going to have to be the thing that 	generates the tracker and does everything else to keep track of the projects overall.
+
+
+-------------------------------------------------------------------------------------------------
+					     BUGS
+-------------------------------------------------------------------------------------------------
+CLASS A
+
+- currently, blitz tracker created in every project personal notes, project and master tracker 	needs to be resolved
+	>Dynamic Blitzschreiben tracker - Replace CSV tracker with dynamic scanning of .proman 	files
+
+- apply_workflow_chain() apparently does not pass outputs between steps?
+
+- The timer for Stage I in Blitzschreiben does not actually show a timer.
+
+- "check_draft_status()" does not exist in PRoMan, but is in the help reference under 	blitzschreiben integration - the help() doc needs to be updated
+
+-------------------------------------------------------------------------------------------------
+CLASS B
+
+- class III blitz template has messed up YAML - date, references style, references need to exist 	for sure, etc.
+
+- currently, blitz docs have all the things together in one doc - sim, real, etc.  Do we want 	all of stage II on one doc, or multiple docs (sim, desc., real, etc.)?
+	> maybe ask others?  
+	>We also have communications functions to help clear this up, which might actually mean 	that it should stay in one doc where it's accessible for comms.
+
+- clean_strings() only works on one entry at a time
+	> needs to be able to process multiple variables in one call so the whole DF can be 		cleaned at one time.
+
+- analyzeblitz folder no longer used directly - can be removed from project setup and 	directories.
+
+-------------------------------------------------------------------------------------------------
+CLASS C
+
+- logging report does not state the timeframe of the report's observations.
+
+- there are init_blitz_project() and also blitz_setup() which should be consolidated
+
+- if registry is open in Excel, save_figure() fails because it can't append it.  probably need an 	error message for that case.
+
+- when calling a blitz template, author is always "your name" and the information might be 	something available in .proman.
+
+- stage1_traige template is a markdown file currently, which is fine, but needs to be evaluated 	to make sure it is as user-friendly as possible.
+	> Can we set initial/default mode to visual?
+
+- clean_strings() does not recognize `|` to replace with `_`
+
+- if you try to type a name of a file in the create_project() function that doesn't exist (want to 	create a new one) the function just can't find it and it fails without an error.
+
+- when creating a blitz project, you can enter a name where a code is.  I'm not sure of the fix, 	but this does create an issue.  Codes are supposed to be able to be essentially infinite 	characters.
+
+- when doing an annotated bibliography, need to change the format for the quarto doc so it is more 	human readable, and also maybe use a table instead of the weird stuff Claude came up with.
+-------------------------------------------------------------------------------------------------
+				     Aesthetics (Class D Bugs)
+-------------------------------------------------------------------------------------------------
+
+- Use Tufte's style where tractable as a general rule 
+
+- search for other good palettes
+	> add in the Hopkins official colors as a palette
+
+- report from logging is confusing. there are recent file activity and recent activity summary sections, and both present seemingly conflicting information at face value.
+	> the summary is the part that tries to determine recent activity patterns.  These do 	different things, but may need to be relabeled in order to clarify
+
+- the stupid UTF-8 emojis that Claude keeps putting in everything broke.  Should remove all the stupid emojis.  Can replace with things like `[DATA]` instead of the "data" emoji.
+	> I guess I should also remember that umlauts are also UTF-8 encoded...
+
+- blitz templates need to be reformatted
+	> a number of things are all caps for some reason
+	> chunks can be code-fold = T, echo = F, etc. needs to be in the chunk code at the start 	really
+
+- the quick reference doc from help() should probably allow the tip box to be either closeable or 	minimizable.
+	> it also is not a bulleted list, but displays a different tip from the list in the html 	div.  - actually kind of cool and might want to expand.
+
+- tabsets in blitz docs?
+	> probably for comms docs, but not really necessary for blitz, and users can just put 	them in themselves honestly.
+
