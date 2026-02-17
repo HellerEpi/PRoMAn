@@ -2,12 +2,19 @@
 -------------------------------------------------------------------------------------------------
 					     NOTES
 -------------------------------------------------------------------------------------------------
+- 0.6.0.9002 - 02.12.2026 > fixed the bugs with the figures registry and save_figure()
 
-- 0.6.0.9000 - 06.11.2025 > "PRoMAn" 
+- 0.6.0.9001 - 04.12.2025 > "PRoMAn" Beta
+	> added in function for reference management to make notes as reading, rather than make a 	full annotated bibliography all at once for a much more natural workflow
+		- still extracts all the information for citation in note and updates .proman
+		- can combine and review notes as well
+		- included in update_bibliography()
+
+- 0.6.0.9000 - 06.11.2025 > "PRoMAn" Beta
 	> added in the reference management functions and further tested blitzschreiben
 	> now can create a bibliography, update it with an annotation function.
 	> released as beta on GitHub
-
+	> really probably don't need any other core functionality added before first true version
 
  - 0.5.0.9016 - 20.10.25
 	> consolidated all pathing and simplified calls to files and folders
@@ -16,12 +23,12 @@
 
 - 0.4.0.9000 - 06.10.25
 	> implemented the fallback system, user initiated backup saves of all files in the 	project in a hidden folder.  
-	> does not do versioning or multiple saves, only ein fallback save at a time.  Clean, 	minimal, does not try to do what Git does.
+	> does not do versioning or multiple saves, only ein fallback save at a time.  Clean, 	minimal, does not try to do what already Git does.
 	> Users can call the function fallback() to reset to the previous fallback status.
 	> last fallback set should be reflected in project logs.
 
 
-- 0.3.0.9000 - 03.10.25 - added in a workflows system.  PRoMan *should* now be able  	to recognize marked chunks of code, process them as workflows, and apply them to sets of 	files or save them as scripts to be sourced.
+- 0.3.0.9000 - 03.10.25 - added in a workflows system.  PRoMan *should* now be able to recognize 	marked chunks of code, process them as workflows, and apply them to sets of files or save 	them as scripts to be sourced.
 	> This may be the last core feature added in order to prevent feature creep. Helper 	functions and improvements of current core capabilities should probably be the focus 	moving forward.
 		~ E.g., functions that help manage sources may need expanding and working with, 		everything needs testing and streamlining, etc.
 		~ the only other potential novel addition would be an emergency backup/snapshot 		system.  A quick rip-cord emergency reset that stops some goof ups so could save 		a lot of time.  "Fallback"? Would have to be easier & lighter than GitHub.
@@ -34,35 +41,39 @@
 					    TO DO
 -------------------------------------------------------------------------------------------------
 
-- worth submitting to rOpenSci for peer review? Honestly have no idea if it is in or out of their 	scope.  But, a peer review would be nice whether or not they want it in their packages.
+- Update logging/tracking so that logs can incorporate reading work better
 
-- Add functions to make charts and graphics like those from P2, and also to make chart panels  	well - scalesaligned, sizing/proportions correct, etc.
+- update the compare_datasets() function so that it also points out changes in variable names, 	variable type (numeric, character, factor, etc.)
+
+- also check the data dictionary function - What does that actually output at this point?
 
 - Currently redundant or partially redundant functions for further evaluation:
 	> set_project_paths() & set_project()
-
-- do I want to poll friends in order to find out what things and domains of things are struggles 	that PRoMan could help them with?
 
 - Need to make sure that there is a way to set simulations easily for genomic/genetic data.
 	> do a test and see if it can be done currently, what that looks like, go from there, 	etc.
 	> can also just include a dataset for testing in the package... but that is less fun and 		flexible.
 
-- some projects are very large, and the .fallback might also be large.  We might zip the fallback 	info?
+- some projects are very large, and the .fallback might also be large.  We might zip and compress
+ 	the fallback info
 
-- may want to find a good way to clean variables from workflows output - currently just names 	everything after files.  It's fine because it's easy to clean, but it would be better if 	PRoMan helps with this.
+- find a good way to clean variables from workflows output - currently just names everything after
+	files.  It's fine because it's easy to clean, but it would be better if PRoMAn helps with
+	this.
 
 - blitzschreiben_status() shows all projects, so this is going to have to be the thing that 	generates the tracker and does everything else to keep track of the projects overall.
 
-
-- update vignette and quick reference, do all the other stuff so it's all pretty-ish for others I 	guess
+- update vignette and quick reference, prepare for others
 
 -------------------------------------------------------------------------------------------------
 					     BUGS
 -------------------------------------------------------------------------------------------------
 CLASS A
 
+- create_pdf_reading_note() has a reference to a non-existent function, and should be renamed 	"reading_note()"
+
 - currently, blitz tracker created in every project personal notes, project and master tracker 	needs to be resolved
-	>Dynamic Blitzschreiben tracker - Replace CSV tracker with dynamic scanning of .proman 	files
+	> Move to a dynamic Blitzschreiben tracker - Replace CSV tracker with dynamic scanning 	of .proman files and one-time report output
 
 - apply_workflow_chain() apparently does not pass outputs between steps?
 
@@ -117,7 +128,7 @@ CLASS C
 - report from logging is confusing. there are recent file activity and recent activity summary sections, and both present seemingly conflicting information at face value.
 	> the summary is the part that tries to determine recent activity patterns.  These do 	different things, but may need to be relabeled in order to clarify
 
-- the stupid UTF-8 emojis that Claude keeps putting in everything broke.  Should remove all the stupid emojis.  Can replace with things like `[DATA]` instead of the "data" emoji.
+- the stupid UTF-8 emojis that Claude keeps putting in everything broke.  Should remove all the 	stupid emojis.  Can replace with things like `[DATA]` instead of the "data" emoji.
 	> I guess I should also remember that umlauts are also UTF-8 encoded...
 
 - blitz templates need to be reformatted

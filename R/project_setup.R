@@ -9,7 +9,7 @@
 
 #' Create a new project with standard folder structure
 #'
-#' Creates a standardized PRoMan project directory with all required folders,
+#' Creates a standardized PRoMAn project directory with all required folders,
 #' tracking markers, and a .proman configuration file. Can be used interactively
 #' with GUI folder selection or programmatically with specified path.
 #'
@@ -26,13 +26,13 @@
 #'   \item Project root directory with .proman configuration file
 #'   \item data/ (with source/ and cleaned/ subdirectories)
 #'   \item r_programs/ for R scripts
-#'   \item personal_notes/ (with analyseblitz/ and figures/ subdirectories)
+#'   \item personal_notes/ (with reading/ and figures/ subdirectories)
 #'   \item sources/ for reference materials
 #'   \item old/ for archived files
 #' }
 #'
 #' Each folder contains a hidden .proman_(foldername) marker file that allows
-#' PRoMan to track folders even if they are moved within the project.
+#' PRoMAn to track folders even if they are moved within the project.
 #'
 #' The .proman file in the project root contains:
 #' \itemize{
@@ -73,7 +73,7 @@ create_project <- function(project_code = NULL,
       # Try to create a GUI dialog for project information
       # Create a tcltk dialog window
       tt <- tcltk::tktoplevel()
-      tcltk::tkwm.title(tt, "Create New PRoMan Project")
+      tcltk::tkwm.title(tt, "Create New PRoMAn Project")
 
       # Force window to front
       tcltk::tkraise(tt)
@@ -200,7 +200,7 @@ create_project <- function(project_code = NULL,
 
   # Additional subdirectories to create (but not track with markers)
   additional_dirs <- c(
-    file.path("personal_notes", "analyseblitz"),
+    file.path("personal_notes", "reading"),
     file.path("personal_notes", "figures")
   )
 
@@ -242,7 +242,7 @@ create_project <- function(project_code = NULL,
     description = null_coalesce(description, ""),
     created_date = as.character(Sys.Date()),
     created_by = Sys.info()["user"],
-    proman_version = as.character(packageVersion("PRoMan")),
+    proman_version = as.character(packageVersion("PRoMAn")),
 
     # Folder registry with IDs and paths
     folders = list(
@@ -284,7 +284,7 @@ create_project <- function(project_code = NULL,
           intern = FALSE, wait = TRUE)
   }
 
-  message("✓ Created PRoMan project: ", project_code)
+  message("✓ Created PRoMAn project: ", project_code)
   message("  Location: ", path)
   message("  Created ", length(folder_registry), " tracked folders")
 
@@ -600,7 +600,7 @@ find_project_root <- function(start_path = getwd()) {
     }
   }
 
-  stop("No .proman file found. Are you in a PRoMan project directory?")
+  stop("No .proman file found. Are you in a PRoMAn project directory?")
 }
 
 
@@ -849,7 +849,7 @@ save_figure_file <- function(plot, filename, ...) {
     "personal_notes" = paths$personal_notes,
     "figures" = file.path(paths$personal_notes, "figures"),
     "logs" = file.path(paths$personal_notes, "logs"),
-    "analyseblitz" = file.path(paths$personal_notes, "analyseblitz"),
+    "reading" = file.path(paths$personal_notes, "reading"),
 
     # Other folders
     "old" = paths$old,
@@ -873,7 +873,7 @@ save_figure_file <- function(plot, filename, ...) {
   # Create folder if it doesn't exist (for subfolders like figures, logs)
   if(!dir.exists(path)) {
     # Only auto-create certain subfolders
-    auto_create <- c("figures", "logs", "analyseblitz")
+    auto_create <- c("figures", "logs", "reading")
     if(tolower(folder) %in% auto_create) {
       dir.create(path, recursive = TRUE, showWarnings = FALSE)
       message("Created folder: ", path)

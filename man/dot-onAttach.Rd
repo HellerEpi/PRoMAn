@@ -12,5 +12,5 @@
 \item{pkgname}{Package name}
 }
 \description{
-Automatically sets up exit logging when PRoMan is loaded
+Automatically sets up exit logging when PRoMAn is loaded
 }

@@ -35,7 +35,7 @@ nubmers of files, easy-to-implement workflows, setting project fallbacks
 in case of errors, saving and managing figures, communicating with
 others, and it provides a framework for writing called Blitzschreiben.
 
-## Note: Current Version in Beta 
+## Note: Current Version in Beta
 
 The latest version (0.6.0.900) is a *test* version of PRoMAn. Some of
 the information in this vignette may be subject to change as the package

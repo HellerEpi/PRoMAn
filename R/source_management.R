@@ -1324,14 +1324,63 @@ update_bibliography <- function() {
         if(grepl("<!-- RELEVANCE -->", line)) {
           value <- gsub(".*<!-- RELEVANCE -->\\s*\\[?([^\\]]+)\\]?.*<!-- /RELEVANCE -->.*", "\\1", line)
           annotations[[current_key]]$relevance <- trimws(value)
-        } else if(grepl("<!-- STAGE -->", line)) {
-          value <- gsub(".*<!-- STAGE -->\\s*\\[?([^\\]]+)\\]?.*<!-- /STAGE -->.*", "\\1", line)
-          annotations[[current_key]]$stage <- trimws(value)
-        }
+          }
       }
     }
 
     cat(paste("  Found annotations for", length(annotations), "entries\n"))
+  }
+
+  # Add this section to update_bibliography() after the annotation file check:
+
+  # Step 1.5: Check for reading notes and extract annotations
+  reading_dir <- file.path(paths$personal_notes, "reading")
+  if(dir.exists(reading_dir)) {
+    cat("📚 Found reading notes directory - extracting annotations...\n")
+
+    note_files <- list.files(reading_dir, pattern = "\\.md$", full.names = TRUE)
+    reading_annotations <- list()
+
+    for(note_file in note_files) {
+      content <- readLines(note_file, warn = FALSE)
+
+      # Get citation key
+      citation_line <- grep("\\*\\*Citation key:\\*\\*", content, value = TRUE)
+      if(length(citation_line) == 0) next
+
+      citation_key <- gsub(".*@([a-zA-Z0-9]+).*", "\\1", citation_line[1])
+
+      # Extract summary from the Summary section
+      summary_start <- grep("^## Summary", content)
+      if(length(summary_start) > 0) {
+        # Look for filled content (not template placeholders)
+        summary_end <- grep("^##", content[(summary_start[1]+1):length(content)])[1]
+        if(!is.na(summary_end)) {
+          summary_lines <- content[(summary_start[1]+1):(summary_start[1]+summary_end-1)]
+          # Filter out template placeholders
+          summary_lines <- summary_lines[!grepl("^\\[.*\\]$", summary_lines)]
+          summary_lines <- summary_lines[nchar(trimws(summary_lines)) > 0]
+
+          if(length(summary_lines) > 0) {
+            reading_annotations[[citation_key]] <- list()
+            reading_annotations[[citation_key]]$summary <- paste(summary_lines, collapse = " ")
+          }
+        }
+      }
+
+    # Merge with existing annotations
+    if(length(reading_annotations) > 0) {
+      cat(paste("  Found annotations in", length(reading_annotations), "reading notes\n"))
+      if(is.null(annotations)) {
+        annotations <- reading_annotations
+      } else {
+        # Merge, preferring reading notes for conflicts
+        for(key in names(reading_annotations)) {
+          annotations[[key]] <- reading_annotations[[key]]
+        }
+      }
+    }
+    }
   }
 
   # Step 2: Collect all .bib files in sources folder
@@ -1390,15 +1439,12 @@ update_bibliography <- function() {
             ann <- annotations[[key]]
 
             # Remove any existing annotation fields to avoid duplicates
-            original_lines <- original_lines[!grepl("^\\s*(relevance|stage|annote|methods|findings)\\s*=",
+            original_lines <- original_lines[!grepl("^\\s*(relevance|annote|methods|findings)\\s*=\\s*\\{",
                                                     original_lines, ignore.case = TRUE)]
 
             # Add annotation fields before closing
             if(!is.null(ann$relevance) && nchar(ann$relevance) > 0) {
               original_lines <- c(original_lines, paste0("  relevance = {", ann$relevance, "},"))
-            }
-            if(!is.null(ann$stage) && nchar(ann$stage) > 0) {
-              original_lines <- c(original_lines, paste0("  stage = {", ann$stage, "},"))
             }
             if(!is.null(ann$summary) && nchar(ann$summary) > 0) {
               original_lines <- c(original_lines, paste0("  annote = {", ann$summary, "},"))
@@ -1483,6 +1529,7 @@ update_bibliography <- function() {
   }
 
   return(invisible(main_bib_file))
+
 }
 
 #' Find missing DOIs and update bibliography
@@ -1922,9 +1969,8 @@ annotated_bibliography <- function(include_pdfs = TRUE, only_incomplete = FALSE)
     "## Annotation Guidelines",
     "",
     "- **Relevance**: high/medium/low - How important is this for your project?",
-    "- **Stage**: 1/2/3/all - Which Blitzschreiben stage is this most relevant for?",
     "- **Summary**: One sentence describing the paper's main contribution",
-    "- **Methods Notes**: Key methodological approaches (especially for Stage 2)",
+    "- **Methods Notes**: Key methodological approaches",
     "- **Key Findings**: Main results or insights relevant to your work",
     "",
     "You can also fix any errors in the title, authors, or year fields.",
@@ -1972,8 +2018,6 @@ annotated_bibliography <- function(include_pdfs = TRUE, only_incomplete = FALSE)
                   "<!-- ANNOTATION START: ", entry$key, " -->",
                   "",
                   "**Relevance:** <!-- RELEVANCE --> [medium] <!-- /RELEVANCE -->",
-                  "",
-                  "**Stage:** <!-- STAGE --> [all] <!-- /STAGE -->",
                   "",
                   "**Summary:** <!-- SUMMARY -->",
                   "[One sentence summary here]",
@@ -2076,5 +2120,498 @@ check_bibliography <- function() {
   } else if(file.exists(auto_bib) && !file.exists(annotation_file)) {
     cat("\nNext step: Run create_annotation_template() to review/annotate\n")
   }
+}
+
+#' Create reading note from PDF with automatic bibliography entry
+#'
+#' Creates a structured reading note in personal_notes/reading/ with auto-extracted
+#' bibliography information from the PDF
+#'
+#' @param pdf_file PDF filename in sources folder (or "select" to choose interactively)
+#' @param project_code Optional project code to link this note to
+#' @param open_note Open the note after creation (default TRUE)
+#' @export
+create_pdf_reading_note <- function(pdf_file = "select", project_code = NULL, open_note = TRUE) {
+
+  paths <- get_project_paths()
+  proman_data <- read_proman()
+
+  # Use current project code if not specified
+  if(is.null(project_code)) {
+    project_code <- proman_data$project_code
+  }
+
+  # Ensure reading notes directory exists
+  reading_dir <- file.path(paths$personal_notes, "reading")
+  if(!dir.exists(reading_dir)) {
+    dir.create(reading_dir, showWarnings = FALSE)
+    message("Created reading notes directory")
+  }
+
+  # Select PDF if not specified
+  if(pdf_file == "select") {
+    pdf_files <- list.files(paths$sources, pattern = "\\.pdf$", full.names = FALSE)
+    if(length(pdf_files) == 0) {
+      stop("No PDFs found in sources folder")
+    }
+
+    cat("Available PDFs:\n")
+    for(i in seq_along(pdf_files)) {
+      cat(paste0("[", i, "] ", pdf_files[i], "\n"))
+    }
+    cat("\nSelect PDF number: ")
+    selection <- as.numeric(readline())
+
+    if(selection < 1 || selection > length(pdf_files)) {
+      stop("Invalid selection")
+    }
+
+    pdf_file <- pdf_files[selection]
+  }
+
+  pdf_path <- file.path(paths$sources, pdf_file)
+
+  if(!file.exists(pdf_path)) {
+    stop(paste("PDF not found:", pdf_file))
+  }
+
+  cat("📄 Extracting metadata from PDF...\n")
+
+  # Use existing bibliography generation for this single PDF
+  # This leverages all your sophisticated extraction logic
+  temp_bib <- tempfile(fileext = ".bib")
+
+  # Temporarily redirect the bibliography output
+  original_bib <- file.path(paths$sources, paste0("references_", project_code, ".bib"))
+
+  # Generate bibliography entry for just this PDF
+  generate_bibliography(pdf_subset = pdf_file, show_progress = FALSE)
+
+  # Read the generated entry
+  if(file.exists(original_bib)) {
+    bib_content <- readLines(original_bib)
+
+    # Find the entry for this PDF
+    # Look for the note field that contains the PDF filename
+    pdf_marker <- paste0("PDF: ", tools::file_path_sans_ext(pdf_file))
+    entry_lines <- character()
+    in_entry <- FALSE
+    citation_key <- NULL
+
+    for(line in bib_content) {
+      if(grepl("^@", line)) {
+        # Start of new entry
+        if(in_entry && length(entry_lines) > 0 && any(grepl(pdf_marker, entry_lines))) {
+          # This was our entry
+          break
+        }
+        # Extract citation key
+        key <- gsub("@\\w+\\{([^,]+),.*", "\\1", line)
+        entry_lines <- c(line)
+        in_entry <- TRUE
+        citation_key <- key
+      } else if(in_entry) {
+        entry_lines <- c(entry_lines, line)
+        if(grepl("^\\}$", line)) {
+          # End of entry
+          if(any(grepl(pdf_marker, entry_lines))) {
+            # This is our entry
+            break
+          }
+          in_entry <- FALSE
+          entry_lines <- character()
+        }
+      }
+    }
+
+    # Parse the entry to extract metadata
+    metadata <- list()
+    if(length(entry_lines) > 0) {
+      metadata$citation_key <- citation_key
+      metadata$title <- extract_bib_field(entry_lines, "title")
+      metadata$author <- extract_bib_field(entry_lines, "author")
+      metadata$year <- extract_bib_field(entry_lines, "year")
+      metadata$journal <- extract_bib_field(entry_lines, "journal")
+      metadata$doi <- extract_bib_field(entry_lines, "doi")
+      metadata$bib_entry <- paste(entry_lines, collapse = "\n")
+    }
+  } else {
+    stop("Could not generate bibliography entry")
+  }
+
+  # Create reading note content
+  note_content <- c(
+    paste0("# ", null_coalesce(metadata$title, "Reading Note")),
+    "",
+    paste0("**Date:** ", Sys.Date()),
+    paste0("**PDF:** [[", pdf_file, "]](../../sources/", pdf_file, ")"),
+    paste0("**Project:** [[", project_code, "]]"),
+    paste0("**Citation key:** @", null_coalesce(metadata$citation_key, "unknown")),
+    "",
+    "## Bibliographic Information",
+    "",
+    paste0("- **Authors:** ", null_coalesce(metadata$author, "[Unknown]")),
+    paste0("- **Year:** ", null_coalesce(metadata$year, "[Unknown]")),
+    paste0("- **Journal:** ", null_coalesce(metadata$journal, "[Unknown]")),
+    if(!is.null(metadata$doi)) paste0("- **DOI:** [", metadata$doi, "](https://doi.org/", metadata$doi, ")"),
+    "",
+    "```bibtex",
+    null_coalesce(metadata$bib_entry, ""),
+    "```",
+    "",
+    "---",
+    "",
+    "## Summary",
+    "",
+    "### Main Question/Purpose",
+    "[What is the paper trying to answer or achieve?]",
+    "",
+    "### Key Methods",
+    "[How did they approach the problem?]",
+    "",
+    "### Main Findings",
+    "[What were the key results?]",
+    "",
+    "### Significance",
+    "[Why does this matter to the field?]",
+    "",
+    "---",
+    "",
+    "## Relevance to My Work",
+    "",
+    "### Connection to Project ", project_code,
+    "[How does this relate to my current project?]",
+    "",
+    "### Useful Methods/Approaches",
+    "- [ ] [Method that could be adapted]",
+    "",
+    "---",
+    "",
+    "### Strengths",
+    "- ",
+    "",
+    "### Limitations",
+    "- ",
+    "",
+    "### Questions/Concerns",
+    "- ",
+    "",
+    "---",
+    "",
+    "## Follow-up Actions",
+    "",
+    "---",
+    "",
+    "## Tags",
+    "",
+    "#reading-note #", project_code, " #",
+    ""
+  )
+
+  # Create filename
+  safe_key <- gsub("[^A-Za-z0-9-]", "", null_coalesce(metadata$citation_key, "unknown"))
+  note_filename <- paste0(safe_key, "_", format(Sys.Date(), "%Y%m%d"), ".md")
+  note_path <- file.path(reading_dir, note_filename)
+
+  # Check if note already exists
+  if(file.exists(note_path)) {
+    cat("Note already exists for this paper. Overwrite? (y/n): ")
+    if(tolower(readline()) != "y") {
+      return(invisible(NULL))
+    }
+  }
+
+  writeLines(note_content, note_path)
+
+  # Update .proman to track reading notes
+  if(is.null(proman_data$reading_notes)) {
+    proman_data$reading_notes <- list()
+  }
+
+  proman_data$reading_notes[[safe_key]] <- list(
+    pdf_file = pdf_file,
+    note_file = note_filename,
+    created_date = as.character(Sys.Date()),
+    project_code = project_code,
+    citation_key = metadata$citation_key
+  )
+
+  write_proman(proman_data)
+
+  cat("\n✅ Created reading note!n")
+  cat(paste("   Location: personal_notes/reading/", note_filename, "\n", sep = ""))
+  cat(paste("   Citation: @", safe_key, "\n", sep = ""))
+
+  # Log this activity
+  log_blitz_activity("Reading Note Created", project_code,
+                     notes = paste("PDF:", pdf_file))
+
+  # Open in editor if requested
+  if(open_note && interactive()) {
+    file.edit(note_path)
+  }
+
+  return(invisible(list(
+    note_path = note_path,
+    citation_key = safe_key,
+    metadata = metadata
+  )))
+}
+
+
+#' Review and compile reading notes
+#'
+#' Shows summary of reading notes
+#'
+#' @param days_back Number of days to look back (NULL for all)
+#' @param project_filter Filter by project code
+#' @export
+review_reading_notes <- function(days_back = NULL, project_filter = NULL) {
+
+  paths <- get_project_paths()
+  proman_data <- read_proman()
+
+  reading_dir <- file.path(paths$personal_notes, "reading")
+
+  if(!dir.exists(reading_dir)) {
+    cat("No reading notes found.\n")
+    return(invisible(NULL))
+  }
+
+  note_files <- list.files(reading_dir, pattern = "\\.md$", full.names = TRUE)
+
+  if(length(note_files) == 0) {
+    cat("No reading notes found.\n")
+    return(invisible(NULL))
+  }
+
+  # Filter by date if requested
+  if(!is.null(days_back)) {
+    file_info <- file.info(note_files)
+    note_files <- note_files[file_info$mtime >= (Sys.Date() - days_back)]
+  }
+
+  cat("📚 READING NOTES REVIEW\n")
+  cat(paste(rep("-", 50), collapse = ""), "\n\n")
+
+  # Parse each note for summary
+  notes_data <- list()
+
+  for(i in seq_along(note_files)) {
+    content <- readLines(note_files[i], warn = FALSE)
+
+    # Extract key information
+    title_line <- grep("^# ", content, value = TRUE)[1]
+    title <- gsub("^# ", "", title_line)
+
+    project_line <- grep("\\*\\*Project:\\*\\*", content, value = TRUE)
+    project <- if(length(project_line) > 0) {
+      gsub(".*\\[\\[(.*)\\]\\].*", "\\1", project_line[1])
+    } else NA
+
+    citation_line <- grep("\\*\\*Citation key:\\*\\*", content, value = TRUE)
+    citation <- if(length(citation_line) > 0) {
+      gsub(".*@([a-zA-Z0-9]+).*", "\\1", citation_line[1])
+    } else NA
+
+    # Check if has substantial content (more than just template)
+    has_content <- any(grepl("^\\[[^\\]]+[^\\]]\\]", content))  # Filled brackets
+
+    notes_data[[i]] <- list(
+      file = basename(note_files[i]),
+      path = note_files[i],
+      title = title,
+      project = project,
+      citation = citation,
+      has_content = has_content,
+      modified = file.info(note_files[i])$mtime
+    )
+  }
+
+  # Convert to data frame for easier filtering
+  notes_df <- do.call(rbind, lapply(notes_data, as.data.frame))
+
+  # Apply project filter if specified
+  if(!is.null(project_filter)) {
+    notes_df <- notes_df[notes_df$project == project_filter, ]
+  }
+
+  # Summary statistics
+  cat(paste("Total reading notes:", nrow(notes_df), "\n"))
+  cat(paste("With content:", sum(notes_df$has_content), "\n"))
+
+  if(!is.null(project_filter)) {
+    cat(paste("Filtered to project:", project_filter, "\n"))
+  }
+
+  cat("\n")
+
+  # Show recent notes
+  recent <- notes_df[order(notes_df$modified, decreasing = TRUE), ]
+
+  cat("RECENT NOTES:\n")
+  for(i in 1:min(10, nrow(recent))) {
+    cat(paste0("[", i, "] ", format(recent$modified[i], "%Y-%m-%d"), " - "))
+    cat(paste0("@", recent$citation[i], " "))
+    if(recent$has_content[i]) cat("✓ ") else cat("○ ")
+    cat("\n")
+  }
+
+  cat("\nOPTIONS:\n")
+  cat("1. Compile notes into bibliography\n")
+  cat("2. Export notes for project\n")
+  cat("0. Exit\n\n")
+
+  choice <- readline("Select option (0-2): ")
+
+  if(choice == "1") {
+    compile_reading_notes_to_bibliography(notes_df)
+  } else if(choice == "2") {
+    export_project_reading_notes(project_filter)
+  }
+
+  return(invisible(notes_df))
+}
+
+#' Compile reading notes into annotated bibliography
+#'
+#' Extracts annotations from reading notes and updates bibliography
+#'
+#' @param notes_df Data frame of notes from review_reading_notes
+compile_reading_notes_to_bibliography <- function(notes_df = NULL) {
+
+  paths <- get_project_paths()
+  proman_data <- read_proman()
+
+  if(is.null(notes_df)) {
+    # Get all notes
+    reading_dir <- file.path(paths$personal_notes, "reading")
+    note_files <- list.files(reading_dir, pattern = "\\.md$", full.names = TRUE)
+  } else {
+    note_files <- notes_df$path
+  }
+
+  cat("\n📖 Compiling reading notes to bibliography...\n")
+
+  # For each note, extract annotation information
+  annotations <- list()
+
+  for(note_file in note_files) {
+    content <- readLines(note_file, warn = FALSE)
+
+    # Get citation key
+    citation_line <- grep("\\*\\*Citation key:\\*\\*", content, value = TRUE)
+    if(length(citation_line) == 0) next
+
+    citation_key <- gsub(".*@([a-zA-Z0-9]+).*", "\\1", citation_line[1])
+
+    # Extract sections
+    summary_start <- grep("^### Main Question/Purpose", content)
+    relevance_start <- grep("^## Relevance to My Work", content)
+
+    if(length(summary_start) > 0) {
+      # Extract summary content
+      summary_lines <- content[(summary_start[1] + 1):(summary_start[1] + 10)]
+      summary_lines <- summary_lines[!grepl("^\\[.*\\]$", summary_lines)]
+      summary_lines <- summary_lines[nchar(summary_lines) > 0]
+
+      if(length(summary_lines) > 0) {
+        annotations[[citation_key]] <- list()
+        annotations[[citation_key]]$summary <- paste(summary_lines, collapse = " ")
+      }
+    }
+}
+
+  # Update bibliography with annotations
+  bib_file <- file.path(paths$sources, paste0("references_", proman_data$project_code, ".bib"))
+
+  if(file.exists(bib_file) && length(annotations) > 0) {
+    # This would integrate with your existing update_bibliography function
+    cat(paste("Found annotations for", length(annotations), "entries\n"))
+
+    # Create annotation file for update_bibliography to process
+    annotation_content <- character()
+
+    for(key in names(annotations)) {
+      ann <- annotations[[key]]
+      annotation_content <- c(annotation_content,
+                              paste0("<!-- ANNOTATION START: ", key, " -->"),
+                              paste0("<!-- SUMMARY -->"),
+                              null_coalesce(ann$summary, "[No summary]"),
+                              paste0("<!-- /SUMMARY -->"),
+                              paste0("<!-- ANNOTATION END: ", key, " -->"),
+                              ""
+      )
+    }
+
+    # Save to annotation file
+    ann_file <- file.path(paths$personal_notes, paste0("reading_annotations_",
+                                                       format(Sys.Date(), "%Y%m%d"), ".qmd"))
+    writeLines(annotation_content, ann_file)
+
+    cat(paste("\n✓ Created annotation file:", basename(ann_file), "\n"))
+    cat("Run update_bibliography() to incorporate these annotations\n")
+  }
+}
+
+
+#' Export reading notes for a project
+#'
+#' Creates a compiled document of all reading notes for a project
+#'
+#' @param project_code Project code to export
+export_project_reading_notes <- function(project_code = NULL) {
+
+  paths <- get_project_paths()
+  proman_data <- read_proman()
+
+  if(is.null(project_code)) {
+    project_code <- proman_data$project_code
+  }
+
+  # Get all reading notes for this project
+  notes_data <- review_reading_notes(project_filter = project_code)
+
+  if(nrow(notes_data) == 0) {
+    cat("No reading notes found for project", project_code, "\n")
+    return(invisible(NULL))
+  }
+
+  # Create compiled document
+  output_content <- c(
+    paste0("# Reading Notes for Project ", project_code),
+    paste0("**Compiled:** ", Sys.Date()),
+    paste0("**Total notes:** ", nrow(notes_data)),
+    "",
+    "---",
+    ""
+  )
+
+  # Add each note's content
+  for(i in 1:nrow(notes_data)) {
+    note_content <- readLines(notes_data$path[i], warn = FALSE)
+
+    # Add separator
+    output_content <- c(output_content,
+                        paste0("## ", i, ". ", notes_data$title[i]),
+                        "",
+                        note_content,
+                        "",
+                        "---",
+                        ""
+    )
+  }
+
+  # Save compiled document
+  output_file <- paste0("compiled_reading_notes_", project_code, "_",
+                        format(Sys.Date(), "%Y%m%d"), ".md")
+  output_path <- file.path(paths$personal_notes, output_file)
+
+  writeLines(output_content, output_path)
+
+  cat(paste("\n✓ Exported reading notes to:", output_file, "\n"))
+  cat(paste("Location:", paths$personal_notes, "\n"))
+
+  return(invisible(output_path))
 }
 

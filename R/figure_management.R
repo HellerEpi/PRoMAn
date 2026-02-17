@@ -103,17 +103,17 @@ get_figure_metadata_gui <- function(defaults = list()) {
   # Button functions
   save_function <- function() {
     # Get the values
-    notes_value <- as.character(tcltk::tkget(notes_text, "1.0", "end-1c"))
-    caption_value <- as.character(tcltk::tkget(caption_text, "1.0", "end-1c"))
+    notes_value <- paste(tcltk::tkget(notes_text, "1.0", "end-1c"), collapse = " ")
+    caption_value <- paste(tcltk::tkget(caption_text, "1.0", "end-1c"), collapse = " ")
 
     result <<- list(
       name = as.character(tcltk::tclvalue(name_var)),
-      caption = if(length(caption_value) == 0) "" else caption_value,
+      caption = if(length(caption_value) == 0 || caption_value == "") "" else caption_value,
       type = as.character(tcltk::tclvalue(type_var)),
       width = as.numeric(as.character(tcltk::tclvalue(width_var))),
       height = as.numeric(as.character(tcltk::tclvalue(height_var))),
       dpi = as.numeric(as.character(tcltk::tclvalue(dpi_var))),
-      notes = if(length(notes_value) == 0) "" else notes_value
+      notes = if(length(notes_value) == 0 || notes_value == "") "" else notes_value
     )
     tcltk::tkdestroy(tt)
   }
@@ -169,9 +169,9 @@ save_figure <- function(plot_object = NULL,
                         figure_type = "main",
                         caption = NULL,
                         notes = "",
-                        width = 6.5,
-                        height = 4,
-                        dpi = 300,
+                        width = 3.5,
+                        height = 2.3,
+                        dpi = 400,
                         use_gui = interactive(),
                         formats = NULL,
                         base_plot_function = NULL) {
@@ -320,8 +320,10 @@ save_figure <- function(plot_object = NULL,
   }
 
   # Register figure in metadata
-  register_figure(figure_name, clean_name, figure_type, caption, notes,
-                  formats, width, height)
+  if (!is.null(formats) && length(formats) > 0) {
+    register_figure(figure_name, clean_name, figure_type, caption, notes,
+                    formats, width, height)
+  }
 
   # Update statistics in .proman file
   registry_path <- file.path(figures_dir, "figure_registry.csv")
@@ -407,8 +409,6 @@ register_figure <- function(figure_name, filename_base, figure_type, caption, no
 
   # Check if figure already exists
   existing_idx <- which(registry$figure_name == figure_name)
-
-
 
   new_entry <- data.frame(
     figure_name = figure_name,

@@ -29,7 +29,7 @@ Invisibly returns the project path. Also sets the working directory
 to the new project via set_project().
 }
 \description{
-Creates a standardized PRoMan project directory with all required folders,
+Creates a standardized PRoMAn project directory with all required folders,
 tracking markers, and a .proman configuration file. Can be used interactively
 with GUI folder selection or programmatically with specified path.
 }
@@ -39,13 +39,13 @@ This function creates a complete project structure including:
 \item Project root directory with .proman configuration file
 \item data/ (with source/ and cleaned/ subdirectories)
 \item r_programs/ for R scripts
-\item personal_notes/ (with analyseblitz/ and figures/ subdirectories)
+\item personal_notes/ (with reading/ and figures/ subdirectories)
 \item sources/ for reference materials
 \item old/ for archived files
 }
 
 Each folder contains a hidden .proman_(foldername) marker file that allows
-PRoMan to track folders even if they are moved within the project.
+PRoMAn to track folders even if they are moved within the project.
 
 The .proman file in the project root contains:
 \itemize{

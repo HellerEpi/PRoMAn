@@ -10,9 +10,9 @@ save_figure(
   figure_type = "main",
   caption = NULL,
   notes = "",
-  width = 6.5,
-  height = 4,
-  dpi = 300,
+  width = 3.5,
+  height = 2.3,
+  dpi = 400,
   use_gui = interactive(),
   formats = NULL,
   base_plot_function = NULL

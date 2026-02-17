@@ -555,7 +555,7 @@ quick_project_status <- function() {
 
 #' Package startup hook
 #'
-#' Automatically sets up exit logging when PRoMan is loaded
+#' Automatically sets up exit logging when PRoMAn is loaded
 #'
 #' @param libname Library name
 #' @param pkgname Package name
@@ -573,7 +573,7 @@ quick_project_status <- function() {
 
       # Set up the smart exit logging (replaces the tcltk detection)
       assign(".Last", function() {
-        PRoMan:::enhanced_exit_logging_smart()
+        PRoMAn:::enhanced_exit_logging_smart()
       }, envir = .GlobalEnv)
 
       packageStartupMessage("PRoMAn loaded | Project Management in R (Academic) v. 0.6.0.9000")
@@ -761,7 +761,7 @@ enhanced_exit_logging_smart <- function() {
     tryCatch({
       # Create a more informative GUI dialog for the initial question
       response <- get_yes_no_gui(
-        title = "R Session Ending - PRoMan",
+        title = "R Session Ending - PRoMAn",
         message = paste0(
           "You worked on these projects:\n",
           paste("  * ", session_info$projects_worked_on, collapse = "\n"), "\n\n",
@@ -776,7 +776,7 @@ enhanced_exit_logging_smart <- function() {
 
           # Get comment using GUI with better prompt
           comment <- get_text_input_gui(
-            title = paste("PRoMan -", project_name),
+            title = paste("PRoMAn -", project_name),
             prompt = paste0(
               "Project: ", project_name, "\n\n",
               "What did you accomplish?\n",
@@ -938,7 +938,7 @@ show_completion_gui <- function(projects) {
   }
 
   tt <- tcltk::tktoplevel()
-  tcltk::tkwm.title(tt, "PRoMan - Logging Complete")
+  tcltk::tkwm.title(tt, "PRoMAn - Logging Complete")
 
   # Message frame
   msg_frame <- tcltk::tkframe(tt)
