@@ -576,7 +576,7 @@ quick_project_status <- function() {
         PRoMAn:::enhanced_exit_logging_smart()
       }, envir = .GlobalEnv)
 
-      packageStartupMessage("PRoMAn loaded | Project Management in R (Academic) v. 0.6.0.9000")
+      packageStartupMessage("PRoMAn loaded | Project Management in R (Academic) v. 0.6.0.9002")
 
     }, error = function(e) {
       packageStartupMessage("PRoMAn loaded.")
