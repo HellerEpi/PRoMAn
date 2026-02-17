@@ -8,14 +8,14 @@ PRoMAn is under development, and the current release (0.6.0.9000) is a test rele
 ## Installation
 
 ### Method 1: Download Release
-1. Go to [Releases](https://github.com/yourusername/yourrepo/releases)
+1. Go to [Releases](https://github.com/HellerEpi/PRoMAn/releases)
 2. Download the latest version
 3. Extract the files
-4. Run `game.exe` (or appropriate file)
+4. install using devtools
 
 ### Method 2: Clone Repository
 ```bash
-git clone https://github.com/yourusername/yourrepo.git
-cd yourrepo
+git clone https://github.com/HellerEpi/PRoMAn.git
+cd PRoMAn
 
 
