@@ -6,6 +6,11 @@ The following notes are from the development notes (which can be found at PRoMAn
 -------------------------------------------------------------------------------------------------
 					     NOTES
 -------------------------------------------------------------------------------------------------
+- PLANNED MAJOR FUNCTIONALITY CHANGE: VERSION 0.7.0.9 
+	PRoMAn will be adapted to have a "hive" in GitHub, so that work across all types and is
+	portable across workspaces, can incorporate work outside of R, and is safer in regards to 	backing up projects.
+	> logging/tracking will be available across workspaces (secure/cloud, local)
+
 - 0.6.0.9002 - 02.12.2026 > fixed the bugs with the figures registry and save_figure()
 
 - 0.6.0.9001 - 04.12.2025 > "PRoMAn" Beta
