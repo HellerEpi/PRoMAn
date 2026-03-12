@@ -1,6 +1,6 @@
 Package: PRoMAn
 Title: Project Management in R for Academic Research
-Version: 0.6.0.9000
+Version: 0.6.0.9002
 Authors@R: 
     person("John", "Heller", , "jhelle12@jhu.edu", role = c("aut", "cre"))
 Description: PRoMAn is a multi-purpose academic research management and helper system.  It consists of different data management and cleaning functions, file set functions, writing and analysis functions, and other research helpers.

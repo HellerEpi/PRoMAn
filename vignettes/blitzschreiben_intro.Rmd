@@ -1,5 +1,5 @@
 ---
-title: "Blitzschreiben: Rapid Research Workflow in PRoMan"
+title: "PRoMAn & Article Writing"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Blitzschreiben: Rapid Research Workflow in PRoMan}
@@ -19,6 +19,16 @@ library(PRoMan)
 ```
 
 ## Overview
+
+PRoMAn was created not only to facilitate research projects and work in R, but also to smooth out the process of creating research deliverables, i.e. articles.  PRoMAn functions have an ability to carry forward initial work from developing ideas into final products, for example:
+
+- When defining variables, these can be parsed so that a simulated dataset is ready
+
+- short data dictionaries can be generated
+
+- figures can be saved, organized, and output in a manner conducive to publication
+
+- certain metadata for projects (e.g. authors, abstract) can be carried forward from initial stages to drafts
 
 The Blitzschreiben system is a structured workflow for rapidly developing research projects from initial idea to draft manuscript. It emphasizes:
 
