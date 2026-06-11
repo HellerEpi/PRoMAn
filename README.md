@@ -1,5 +1,7 @@
 # PRoMAn
-PRoMAn is an R package that grew out of personal tools.  In its current state, it can help with file organization and data management, rudimentary workflows, project organization and logging of work, saving fallback statuses of projects, and contains a system for helping with the creation of scientific products, which I call "Blitzschreiben."
+PRoMAn is an R package that grew out of personal tools.  In its current state, it can help with file organization and data management, rudimentary workflows, project organization and logging of work, saving fallback statuses of projects, and some other things.
+
+Currently, PRoMAn is not being developed as is.  The underlying systems are being re-assessed and the package will be cut back, streamlined, and made to help with certain aspects of ADHD and working in an academic environment specifically.  Essentially. many of the ideas currently in PRoMAn are likely not as helpful as they seem and the project will be reconfigured to follow evidence backed approaches to approaching academic project management for those with ADHD.  This is both in order to choose a specific purpose rather than try to solve all issues, as well as to mirror my own needs and development as a researcher (since this is me sharing my ideas about tools with the world anyway).
 
 The following notes are from the development notes (which can be found at PRoMAn/dev/notes.txt)
 
